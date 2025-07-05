@@ -1,14 +1,16 @@
 const express = require('express');
-const cors = require('cors'); // Import the cors middleware
 const app = express();
-const port = 3001;
+const port = 3000; // The port your backend will run on
 
-app.use(cors()); // Use the cors middleware
+// This is the API endpoint your React app will call
+app.get('/api/', (req, res) => {
+  console.log('Received a request to /api/'); // Log to see if the backend is being hit
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello from the backend!' });
+  // Send a JSON response with a 'message' property
+  res.json({ message: 'Hello from your Express Backend!' });
 });
 
+// Start the server and listen for requests
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`✅ Backend server is running at http://localhost:${port}`);
 });
