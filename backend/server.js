@@ -1,16 +1,30 @@
+// Load environment variables from .env file
+// Load environment variables FIRST
+require('dotenv').config();
+
+// Now import other modules
 const express = require('express');
+const db = require('./db'); // Now this will work correctly
+
+// Create an Express application
 const app = express();
-const port = 3000; // The port your backend will run on
+const port = 3000;
 
-// This is the API endpoint your React app will call
-app.get('/api/', (req, res) => {
-  console.log('Received a request to /api/'); // Log to see if the backend is being hit
-
-  // Send a JSON response with a 'message' property
-  res.json({ message: 'Hello from your Express Backend!' });
+// Define a route to get all login data
+// This uses the exact query you provided
+app.get('/logins', async (req, res) => {
+  try {
+    // SECURITY NOTE: In a real application, avoid selecting all columns ('*').
+    // Specifically, do not send password hashes or other sensitive data to the client.
+    const { rows } = await db.query('SELECT * FROM public.lms_login');
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
 });
 
-// Start the server and listen for requests
+// Start the server
 app.listen(port, () => {
-  console.log(`✅ Backend server is running at http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
