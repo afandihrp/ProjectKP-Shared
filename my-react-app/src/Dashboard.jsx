@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // --- Styles ---
 // In a real React project, this would be in a separate styles.css file.
+
+
 const Styles = () => (
   <style>{`
     /* CSS Variables for consistent theming */
