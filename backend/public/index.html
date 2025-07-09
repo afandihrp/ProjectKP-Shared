@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <input id="box" type="text"></input>
+        <input id="get" type="submit" value="get"/>
+        <input id="post" type="submit" value="post"/>
+    </div>
+    <script>
+        const box = document.getElementById("box");
+        const get = document.getElementById("get");
+        const post = document.getElementById("post");
+
+        get.addEventListener("click", hanldesubmit);
+        
+        async function hanldesubmit(e){
+            e.preventDefault();
+            const res = await fetch("http://localhost:3000/get1",{
+                method: "GET"
+            })  
+            
+            const data = await res.json();
+            console.log(data);
+            box.value = data.status;          
+        }
+
+        post.addEventListener("click", hanldesubmitpost);
+        
+        async function hanldesubmitpost(e){
+            e.preventDefault();
+            const res = await fetch("http://localhost:3000/post1",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    data: box.value,
+                    dataDouble: box.value + box.value
+                })
+            })         
+        }
+
+
+    </script>
+</body>
+</html>

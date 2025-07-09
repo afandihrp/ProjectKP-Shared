@@ -1,32 +1,32 @@
-// Load environment variables from .env file
-// Load environment variables FIRST
-require('dotenv').config();
 
-// Now import other modules
 const express = require('express');
-const db = require('./db'); // Now this will work correctly
-
-// Create an Express application
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
-// app.use.express.static('public');
+app.use(express.static('public'));
+app.use(express.json());
+// app.use(cors());
 
-// Define a route to get all login data
-// This uses the exact query you provided
-app.get('/logins', async (req, res) => {
-  try {
-    // SECURITY NOTE: In a real application, avoid selecting all columns ('*').
-    // Specifically, do not send password hashes or other sensitive data to the client.
-    const { rows } = await db.query('SELECT * FROM public.lms_login');
-    res.json(rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+app.get('/hello', (req,res) => {
+  res.send('hi!');
+})
+
+app.get('/get1', (req,res) => {
+  res.status(200).json({status: 'bisa'})
+  
+})
+
+app.post('/post1', (req,res) => {
+  // res.status(200).json({status: 'bisa'})
+  const {data, dataDouble} = req.body;
+  if(!data && !dataDouble){
+    return res.status(400).send({status:'failed'})
   }
-});
+  res.status(200).send({status:'success'})
+  console.log(data +":"+ dataDouble)
+})
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
