@@ -4,8 +4,9 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // base: '/5173/',
+  // base: '/3210/',
   server: {
+    allowedHosts: ['call-copied.gl.at.ply.gg'],
     host: 'localhost',
     proxy: {
       '/api': {
@@ -15,4 +16,9 @@ export default defineConfig({
       },
     },
   },
+    preview: {
+    // also whitelist for the preview server
+    allowedHosts: ['call-copied.gl.at.ply.gg'],
+  },
+
 })
