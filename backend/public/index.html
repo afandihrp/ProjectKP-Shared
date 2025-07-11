@@ -4,46 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        table,th,td {
+            border: 1px solid black;
+            width: 50px;
+            padding: 10px;
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body>
     <div>
-        <input id="box" type="text"></input>
-        <input id="get" type="submit" value="get"/>
-        <input id="post" type="submit" value="post"/>
+        <input class="box" type="text" value="username"></input>
+        <input class="box" type="text"></input>
+        <input id="get" type="submit" value="submit"/>
+        <input id="post" type="submit" value="delete"/>
     </div>
+    <table id="table">
+
+
+    </table>
+    <p id="result"></p>
+
     <script>
-        const box = document.getElementById("box");
+        const box = document.getElementsByClassName("box");
         const get = document.getElementById("get");
         const post = document.getElementById("post");
-
-        get.addEventListener("click", hanldesubmit);
+        const result = document.getElementById("result");
+        const table = document.getElementById("table");
         
-        async function hanldesubmit(e){
+        const tableHead = 
+            `
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                </tr>
+            `;
+
+        
+
+        const loadData = async(e) => {
             e.preventDefault();
-            const res = await fetch("http://localhost:3000/get1",{
+            const res = await fetch("http://localhost:3000/getdata",{
                 method: "GET"
-            })  
-            
+            })
             const data = await res.json();
-            console.log(data);
-            box.value = data.status;          
+            const convertArray= data.map(
+                data => 
+                `
+                    <tr>
+                        <td>${data.email}</td>
+                        <td>${data.password}</td>
+                    </tr>                
+                `
+            );
+
+            const tableStr= tableHead + convertArray.join("");
+            table.innerHTML = tableStr; 
+            console.log(document.getElementsByClassName("box"));
+            result.innerText = box[0].value;
+
+        };
+
+        document.addEventListener("DOMContentLoaded", loadData);
+
+
+
+        get.addEventListener("click", hanldesubmit);        
+        async function hanldesubmit(e){
+            
+            e.preventDefault();
+            try{
+                const res = await fetch("http://localhost:3000/submit",{
+                        method: "POST",
+                        headers: {
+                        "Content-Type": "application/json"
+                    },
+                        body: JSON.stringify({
+                        email: box[0].value,
+                        password: box[1].value
+                    })
+                });
+                if(!res.ok)
+                {
+                    const feedback = await res.json();
+                    console.log(feedback.status);
+                    return;
+                }
+                loadData(e);
+            }
+            catch(err){
+                console.log('lol');
+            }
+              
         }
 
         post.addEventListener("click", hanldesubmitpost);
-        
+
         async function hanldesubmitpost(e){
             e.preventDefault();
-            const res = await fetch("http://localhost:3000/post1",{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    data: box.value,
-                    dataDouble: box.value + box.value
+
+            if(!box[0].value) return;
+            
+            try
+            {
+                const res = await fetch("http://localhost:3000/delete",{
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: box[0].value,
+                        password: box[1].value
+                        })
                 })
-            })         
+
+                if(!res.ok)
+                {
+                    const feedback = await res.json();
+                    console.log(feedback.status);
+                    return;
+                }
+                loadData(e);
+
+
+            }
+            catch(err)
+            {
+                console.log(err);
+            }
+                     
         }
+        
+        // async function hanldesubmitpost(e){
+        //     e.preventDefault();
+        //     const res = await fetch("http://localhost:3000/post1",{
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json"
+        //         },
+        //         body: JSON.stringify({
+        //             data: box.value,
+        //             dataDouble: box.value + box.value
+        //         })
+        //     })         
+        // }
 
 
     </script>

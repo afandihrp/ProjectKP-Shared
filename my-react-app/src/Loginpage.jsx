@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 
 // --- CSS Styles Component for Login Page ---
 const Styles = () => (
@@ -159,8 +160,60 @@ const Styles = () => (
 
 // --- Login Page Component ---
 export default function LoginPage() {
-  // useState(tes)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const navigate = useNavigate();
 
+
+  // const textbox = document.getElementsByClassName('form-input');
+
+  // console.log(textbox);
+  const handleSignin = async (e) =>
+  {
+    e.preventDefault();
+    
+    try
+    {
+
+      const res = await fetch('http://localhost:3000/logintest',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+          body: JSON.stringify({
+          email,
+          password
+        })
+
+      });
+
+      if(!res.ok)
+      {
+        const feedback = await res.json();
+        console.log(feedback.status);
+        
+        return;
+      }
+      const response = await res.json();      
+      console.log(response);
+      if(!response.redirecturl == '')
+      {
+        console.log(`redirecting: `+response.redirecturl);
+        return navigate(response.redirecturl);
+      }
+      // console.log(serverresponse);
+
+    }
+    catch(err)
+    {
+      console.log(err);
+    }
+    
+
+   
+  }
   
   return (
     <div className="login-body">
@@ -174,7 +227,7 @@ export default function LoginPage() {
           <p className="login-subtitle">Please sign in to your account.</p>
         </div>
 
-        <form className="login-form" action="#" method="POST">
+        <form className="login-form" onSubmit={handleSignin}>
           <div className="form-group">
             <label htmlFor="email-address" style={{ display: 'none' }}>Email address</label>
             <input
@@ -185,6 +238,9 @@ export default function LoginPage() {
               required
               className="form-input"
               placeholder="Email address"
+              value = {email}
+              onChange={(e) => setEmail(e.target.value)}
+
             />
           </div>
           <div className="form-group">
@@ -197,6 +253,8 @@ export default function LoginPage() {
               required
               className="form-input"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
@@ -211,11 +269,8 @@ export default function LoginPage() {
               </a>
             </div>
           </div>
-
           <div>
-            <button type="submit" className="submit-button">
-              Sign in
-            </button>
+            <button method="signin" type="submit" className="submit-button">Sign in</button>
           </div>
         </form>
       </div>
