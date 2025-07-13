@@ -193,7 +193,8 @@ export default function LoginPage() {
       {
         const feedback = await res.json();
         console.log(feedback.status);
-        
+        setErrorMessage("Please insert valid credentials");
+
         return;
       }
       const response = await res.json();      
@@ -208,7 +209,8 @@ export default function LoginPage() {
     }
     catch(err)
     {
-      console.log(err);
+      console.log("failed to login");
+      setErrorMessage("server did not respond");
     }
     
 
@@ -273,6 +275,9 @@ export default function LoginPage() {
             <button method="signin" type="submit" className="submit-button">Sign in</button>
           </div>
         </form>
+        <div>
+           <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'left', marginBottom: '0px', fontSize:'0.8em'}}>{errorMessage}</p>
+        </div>
       </div>
     </div>
   );

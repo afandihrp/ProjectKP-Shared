@@ -1,0 +1,31 @@
+/* body{
+    margin: 0px;
+    margin-left: 190px;
+} */
+
+.frontpage{
+    margin: 0px;
+}
+
+.greeting{
+    padding: 10px;
+    padding-left: 30px;
+}
+
+.frontpage h1{
+    margin-top:0px;
+    padding-top: 10px;
+    /* margin-left: 100px; */
+}
+
+.content{
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+}
+
+.content p, h3{
+    margin:0px;
+
+}
