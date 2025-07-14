@@ -5,6 +5,7 @@ import Proptypes from 'prop-types';
 import Frontpage from './component/Frontpage.jsx';
 import CourseListItem from './component/CourseListItem.jsx';
 import Profile from './component/Profile.jsx';
+import PythonCompiler from './component/PythonCompiler.jsx';
 
 
 
@@ -13,9 +14,12 @@ import Profile from './component/Profile.jsx';
 
 function Dashboard(props)
 {
-    const [marginsize, setMarginsize] = useState(190);
+    const [marginsize, setMarginsize] = useState(280);
     const [sidebarClosed, setSidebarClosed] = useState(true);
     const [menuSelected, selectMenu] = useState('Dashboard')
+    const name = props.name;
+
+
     
     function handleselected_menu(current_menu)
     {
@@ -26,7 +30,7 @@ function Dashboard(props)
     
     function handleMargin(){
         setSidebarClosed(!sidebarClosed);
-        setMarginsize(sidebarClosed?90:190);
+        setMarginsize(sidebarClosed?115:280);
         // alert("hai"+ sidebarClosed+ marginsize);
     }
 
@@ -77,6 +81,7 @@ function Dashboard(props)
                 />
 
                 <Profile
+                name={props.name}
                 marginleft={marginsize}
                 />
             </>);
@@ -91,6 +96,9 @@ function Dashboard(props)
                 handleMargin={handleMargin}
                 />
 
+                <PythonCompiler
+                marginleft={marginsize}
+                />
 
 
             </>);

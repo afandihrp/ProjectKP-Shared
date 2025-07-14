@@ -29,13 +29,12 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/Test" element={<Test/>}/>
               <Route path="/Dashboard" element={<Dashboard
-              name='agatha'
-              profilePic=''
-              logout={logout}
-
-              
+                name='agatha'
+                profilePic=''  
+                phoneNumber='08123456789'
+                logout={logout}              
               />}/>
-              <Route path="/compiler" element={<CompilerPage/>}/>
+              
           </Routes>
         </BrowserRouter> 
     );
