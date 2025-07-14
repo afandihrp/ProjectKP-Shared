@@ -82,6 +82,7 @@ function Dashboard(props)
 
                 <Profile
                 name={props.name}
+                number={'0'}
                 marginleft={marginsize}
                 />
             </>);

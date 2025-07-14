@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
+const { spawn } = require('child_process');
 const argon2 = require('argon2');
 const cors = require('cors');
 const db = require('./db');
+const { stringify } = require('querystring');
 const app = express();
 const port = 3000;
 
@@ -185,6 +187,55 @@ app.post('/post1', (req,res) => {
   console.log(data +":"+ dataDouble)
 })
 
+
+
+// Change 'python' to 'python3'
+
+
+// Always add an error handler to see these issues clearly
+
+app.post('/execPython', (req,res) => {
+  const {code} = req.body;
+  if(!code){
+    return res.status(400).send({status:'failed'})
+  }
+
+  //Python Interpreter here
+
+  const pythonProcess = spawn('python3', ['-c', code]);
+
+  let scriptOutput = '';
+  let scriptError = '';
+
+  pythonProcess.on('error', (err) => {
+    console.error('Failed to start subprocess.', err);
+  });
+
+  // Listen for data on stdout
+  pythonProcess.stdout.on('data', (data) => {
+    console.log(`stdout: ${data.toString()}`);
+    scriptOutput += {data}.toString();
+  });
+
+  // Listen for data on stderr
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+    scriptError += data.toString();
+  });
+
+  console.log('Captured output:', scriptOutput);
+  console.log('Captured error:', scriptError);
+
+
+
+  res.status(200).json({status:'success',
+                        Output: '',
+                        Error: "error"
+  });
+})
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+

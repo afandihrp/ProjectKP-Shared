@@ -21,39 +21,67 @@ print("Hello, World!")
         // Simulate Python execution
         setTimeout(() => {
             try {
-                let mockOutput = '';
-                
-                // Simple pattern matching for demo purposes
-                if (code.includes('print("Hello, World!")')) {
-                    mockOutput += 'Hello, World!\n';
-                }
-                
-                if (code.includes('print(f"Welcome to Python, {name}!")')) {
-                    mockOutput += 'Welcome to Python, Student!\n';
-                }
-                
-                if (code.includes('print(f"Sum of numbers: {total}")')) {
-                    mockOutput += 'Sum of numbers: 15\n';
-                }
-                
-                // Look for other print statements
-                const printMatches = code.match(/print\([^)]+\)/g);
-                if (printMatches) {
-                    printMatches.forEach(match => {
-                        if (!match.includes('Hello, World!') && !match.includes('Welcome to Python') && !match.includes('Sum of numbers')) {
-                            const content = match.match(/print\(["']([^"']+)["']\)/);
-                            if (content) {
-                                mockOutput += content[1] + '\n';
-                            }
+                let mockOutput = code;
+                console.log('running');
+                const execPythonCode = async () =>{
+                    try{
+                        console.log('running');
+                        const res = await fetch('http://localhost:3000/execPython',{
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                code: code
+                            })
+                        });
+                        if(!res.ok){
+                            setOutput(await res.json());
+                            return;
                         }
-                    });
+                        console.log(await res.json());
+                    }
+                    catch(err){
+                        console.log('code failed');
+                    }                
+                    
+                    
                 }
+
+                execPythonCode();
+
+                                
+                // // Simple pattern matching for demo purposes
+                // if (code.includes('print("Hello, World!")')) {
+                //     mockOutput += 'Hello, World!\n';
+                // }
                 
-                if (!mockOutput.trim()) {
-                    mockOutput = 'Program executed successfully';
-                }
+                // if (code.includes('print(f"Welcome to Python, {name}!")')) {
+                //     mockOutput += 'Welcome to Python, Student!\n';
+                // }
                 
-                setOutput(mockOutput);
+                // if (code.includes('print(f"Sum of numbers: {total}")')) {
+                //     mockOutput += 'Sum of numbers: 15\n';
+                // }
+                
+                // // Look for other print statements
+                // const printMatches = code.match(/print\([^)]+\)/g);
+                // if (printMatches) {
+                //     printMatches.forEach(match => {
+                //         if (!match.includes('Hello, World!') && !match.includes('Welcome to Python') && !match.includes('Sum of numbers')) {
+                //             const content = match.match(/print\(["']([^"']+)["']\)/);
+                //             if (content) {
+                //                 mockOutput += content[1] + '\n';
+                //             }
+                //         }
+                //     });
+                // }
+                
+                // if (!mockOutput.trim()) {
+                    // mockOutput = 'Program executed successfully';
+                // }
+                
+                
             } catch (error) {
                 setOutput(`Error: ${error.message}`);
             }
@@ -62,10 +90,7 @@ print("Hello, World!")
     };
 
     const resetCode = () => {
-        setCode(`# Write your Python code here
-print("Hello, World!")
-
-`);
+        setCode(`# Write your Python code here print("Hello, World!")`);
         setOutput('');
     };
 

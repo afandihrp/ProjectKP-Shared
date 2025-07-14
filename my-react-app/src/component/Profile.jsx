@@ -10,8 +10,8 @@ export default function Profile(props) {
 
     useEffect(() => {
         // Simulated cookie data
-        setName('John Doe');
-        setPhoneNumber('+1 (555) 123-4567');
+        setName(props.name);
+        setPhoneNumber(props.number);
     }, []);
 
     const handleImageChange = (e) => {
