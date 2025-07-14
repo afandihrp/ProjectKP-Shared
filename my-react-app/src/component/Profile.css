@@ -1,169 +1,244 @@
-/* Base provided by user */
-.container {
-    margin-top: 0px;
-    padding: 20px;
+/* Reset and Base Styles */
+* {
+    box-sizing: border-box;
 }
 
-/* General Styling */
-body {
-    font-family: 'Inter', sans-serif; /* A clean, modern font */
-    background-color: #f4f7f6;
-    color: #333;
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #fafafa;
+    min-height: 100vh;
 }
 
-/* Profile Header */
+/* Header Section */
 .profile-header {
-    margin-bottom: 30px;
-    text-align: left;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
-.profile-header h2 {
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #2c3e50;
+.profile-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.025em;
 }
 
 .profile-header p {
-    font-size: 16px;
-    color: #7f8c8d;
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin: 0;
+    font-weight: 400;
 }
 
 /* Profile Card */
 .profile-card {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(230, 31, 31, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    align-items: start;
 }
 
 /* Profile Image Section */
 .profile-image-section {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
 }
 
 .profile-image-container {
     position: relative;
-    width: 150px;
-    height: 150px;
+    margin-bottom: 1.5rem;
 }
 
 .profile-image {
-    width: 100%;
-    height: 100%;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #ecf0f1;
+    border: 4px solid #f3f4f6;
+    transition: all 0.3s ease;
 }
 
-.camera-icon {
+.profile-image-container:hover .profile-image {
+    border-color: #3b82f6;
+}
+
+.camera-overlay {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background-color: #3498db;
+    bottom: 8px;
+    right: 8px;
+    background: #3b82f6;
     color: white;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    padding: 10px;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.camera-icon:hover {
-    background-color: #2980b9;
+.camera-overlay:hover {
+    background: #2563eb;
+    transform: scale(1.1);
 }
 
-#file-upload {
+.file-input {
     display: none;
 }
 
-/* Profile Details Section */
-.profile-details-section {
-    width: 100%;
+.image-text h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
 }
 
-.input-group {
-    margin-bottom: 25px;
+.image-text p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
 }
 
-.input-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: #555;
-    font-size: 14px;
+/* Form Section */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.input-group input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #bdc3c7;
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group input {
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
     border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    box-sizing: border-box;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    color: #1a1a1a;
 }
 
-.input-group input:focus {
+.form-group input:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
 }
 
 /* Button Group */
 .button-group {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
-.btn-save, .btn-cancel {
-    padding: 12px 25px;
-    border: none;
+.btn-primary,
+.btn-secondary {
+    padding: 0.875rem 1.5rem;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-width: 120px;
 }
 
-.btn-save {
-    background-color: #2ecc71;
+.btn-primary {
+    background: #3b82f6;
     color: white;
 }
 
-.btn-save:hover {
-    background-color: #27ae60;
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.btn-cancel {
-    background-color: #ecf0f1;
-    color: #333;
+.btn-secondary {
+    background: transparent;
+    color: #6b7280;
+    border-color: #d1d5db;
 }
 
-.btn-cancel:hover {
-    background-color: #bdc3c7;
+.btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
 }
 
 /* Responsive Design */
-@media (min-width: 768px) {
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem;
+    }
+    
     .profile-card {
-        flex-direction: row;
-        align-items: flex-start;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 1.5rem;
     }
-
-    .profile-image-section {
-        flex-basis: 200px; /* Fixed width for the image section */
+    
+    .profile-header h1 {
+        font-size: 2rem;
     }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+    }
+}
 
-    .profile-details-section {
-        flex-grow: 1; /* The details section will take up the remaining space */
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0.5rem;
+    }
+    
+    .profile-card {
+        padding: 1rem;
+    }
+    
+    .profile-image {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .camera-overlay {
+        width: 40px;
+        height: 40px;
     }
 }

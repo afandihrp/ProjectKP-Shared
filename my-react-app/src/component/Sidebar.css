@@ -269,7 +269,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .sidebar {
     width: 100%;
     transform: translateX(-100%);
@@ -283,7 +283,7 @@
     width: 100%;
     transform: translateX(-100%);
   }
-}
+} */
 
 /* Smooth scrollbar for navigation */
 .sidebar-content::-webkit-scrollbar {
