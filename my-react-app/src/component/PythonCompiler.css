@@ -145,6 +145,7 @@
     resize: none;
     outline: none;
     tab-size: 4;
+    white-space: pre;
     min-height: 300px;
 }
 

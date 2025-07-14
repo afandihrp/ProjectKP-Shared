@@ -200,38 +200,54 @@ app.post('/execPython', (req,res) => {
     return res.status(400).send({status:'failed'})
   }
 
-  //Python Interpreter here
-
+  console.log(code);
   const pythonProcess = spawn('python3', ['-c', code]);
 
   let scriptOutput = '';
   let scriptError = '';
 
   pythonProcess.on('error', (err) => {
-    console.error('Failed to start subprocess.', err);
+      console.error('Failed to start subprocess.', err);
+      res.status(500).json({
+          status: 'error', 
+          Output: '', 
+          Error: `Failed to start subprocess: ${err.message}`
+      });
   });
 
   // Listen for data on stdout
   pythonProcess.stdout.on('data', (data) => {
-    console.log(`stdout: ${data.toString()}`);
-    scriptOutput += {data}.toString();
+      console.log(`stdout: ${data.toString()}`);
+      scriptOutput += data.toString();
   });
 
   // Listen for data on stderr
   pythonProcess.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-    scriptError += data.toString();
+      console.error(`stderr: ${data}`);
+      scriptError += data.toString();
   });
 
-  console.log('Captured output:', scriptOutput);
-  console.log('Captured error:', scriptError);
-
-
-
-  res.status(200).json({status:'success',
-                        Output: '',
-                        Error: "error"
+  // Wait for the process to close before sending response
+  pythonProcess.on('close', (code) => {
+      console.log(`Python process exited with code ${code}`);
+      console.log('Captured output:', scriptOutput);
+      console.log('Captured error:', scriptError);
+      
+      // Send response after process is complete
+      res.status(200).json({
+          status: code === 0 ? 'success' : 'error',
+          Output: scriptOutput,
+          Error: scriptError
+      });
   });
+
+  // Handle process exit
+  pythonProcess.on('exit', (code, signal) => {
+      if (signal) {
+          console.log(`Python process was killed by signal ${signal}`);
+      }
+  });
+
 })
 
 app.listen(port, () => {

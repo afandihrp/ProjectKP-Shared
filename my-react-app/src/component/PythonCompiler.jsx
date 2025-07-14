@@ -22,10 +22,10 @@ print("Hello, World!")
         setTimeout(() => {
             try {
                 let mockOutput = code;
-                console.log('running');
+                // console.log('running');
                 const execPythonCode = async () =>{
                     try{
-                        console.log('running');
+                        // console.log('running');
                         const res = await fetch('http://localhost:3000/execPython',{
                             method: 'POST',
                             headers: {
@@ -39,7 +39,9 @@ print("Hello, World!")
                             setOutput(await res.json());
                             return;
                         }
-                        console.log(await res.json());
+                        const output = await res.json();
+                        console.log(output.Output);
+                        setOutput(output.Output);
                     }
                     catch(err){
                         console.log('code failed');
@@ -77,9 +79,9 @@ print("Hello, World!")
                 //     });
                 // }
                 
-                // if (!mockOutput.trim()) {
-                    // mockOutput = 'Program executed successfully';
-                // }
+                if (!mockOutput.trim()) {
+                    mockOutput = 'Program executed successfully';
+                }
                 
                 
             } catch (error) {
@@ -98,6 +100,42 @@ print("Hello, World!")
         navigator.clipboard.writeText(output);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+    
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            
+            const textarea = e.target;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            
+            if (e.shiftKey) {
+                // Handle Shift+Tab for unindentation
+                const lineStart = code.lastIndexOf('\n', start - 1) + 1;
+                
+                // Check if the line starts with a tab
+                if (code.charAt(lineStart) === '\t') {
+                    const newValue = code.substring(0, lineStart) + code.substring(lineStart + 1);
+                    setCode(newValue);
+                    
+                    // Adjust cursor position
+                    setTimeout(() => {
+                        textarea.selectionStart = textarea.selectionEnd = start - 1;
+                    }, 0);
+                }
+            } else {
+                // Handle Tab for indentation
+                const newValue = code.substring(0, start) + '\t' + code.substring(end);
+                setCode(newValue);
+                
+                // Set cursor position after the tab
+                setTimeout(() => {
+                    textarea.selectionStart = textarea.selectionEnd = start + 1;
+                }, 0);
+            }
+        }
     };
 
     return (
@@ -146,6 +184,7 @@ print("Hello, World!")
                                 className="code-editor"
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
+                                onKeyDown={handleKeyDown}  // Add this line
                                 placeholder="Start coding..."
                                 spellCheck={false}
                             />
