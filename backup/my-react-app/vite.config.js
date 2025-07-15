@@ -6,8 +6,9 @@ export default defineConfig({
   plugins: [react()],
   // base: '/3210/',
   server: {
-    allowedHosts: ['call-copied.gl.at.ply.gg', 'thing-fountain.gl.at.ply.gg'],
-    host: '0.0.0.0',
+    host: true,
+    port: 5173,
+    allowedHosts: ['localhost','thing-fountain.gl.at.ply.gg', '127.0.0.1'],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -16,9 +17,6 @@ export default defineConfig({
       },
     },
   },
-    preview: {
-    // also whitelist for the preview server
-    allowedHosts: ['call-copied.gl.at.ply.gg', 'thing-fountain.gl.at.ply.gg'],
-  },
+
 
 })
