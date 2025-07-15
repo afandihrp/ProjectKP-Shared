@@ -37,13 +37,6 @@ app.get('/hashexample',(req,res) => {
   });
 });
 
-app.get('/hello', (req,res) => {
-  res.send('hi!');
-});
-
-app.get('/get1', (req,res) => {
-  res.status(200).json({status: 'bisa'})  
-});
 
 app.post('/logintest',async (req,res) => {
   const {email, password} = req.body;
@@ -91,22 +84,48 @@ app.post('/logintest',async (req,res) => {
 });
 
 app.post('/submit', async (req,res) => {
-  const {email, password} = req.body;
+  const {email, password, name, phonenumber} = req.body;
+  console.log(req.body);
+  let error;
+
+  if(email || password){
+      try{
+        await db.query(`INSERT INTO login_credentials (email, password) VALUES ($1, $2)`, [email, password]);
+        // res.status(200).send({status:'success insert credentials'})
+      }
+      catch(err){
+        error+=err;
+        console.log(`query failed ${err}`);
+        // res.status(500).send({status:`failed ${err}`})
+      }
+  }      
+
+  if(name || phonenumber)
+  {
+    try{
+
+      const log= await db.query(`update login_credentials set name = $1, phonenumber = $2`, [name,phonenumber]);
+      console.log(log);
+      // await db.query(`insert into userdata(credentials_id, name, phonenumber) 
+      //                 values ($1, $2, $3) 
+      //                 on conflict(credentials_id) 
+      //                 do update set name = excluded.name, phonenumber = excluded.phonenumber`, [rows[0].id, name, phonenumber])
+      // res.status(200).send({status:'success insert userdata'});
+    }
+    catch(err){
+      console.log(`data insertion query failed ${err}`);
+      error+=err;
+      // res.status(500).send({status:`data insertion query failed ${err}`}) 
+    }
+  }
+  if(error)
+  {
+    res.status(500).send({status:`query failed ${error}`}) 
+  }
+  else{
+    res.status(200).send({status:'query success'});
+  }
   
-  if(!email || !password){
-    console.log(`failed`);
-    return res.status(400).send({status:'failed'})    
-  }  
-    
-  try{
-    await db.query(`INSERT INTO logindata (email, password) VALUES ($1, $2)`, [email, password]);
-    console.log(`success add` +` `+ email +` `+ password);
-    res.status(200).send({status:'success'})
-  }
-  catch{
-    console.log('query failed');
-    res.status(500).send({status:'failed'})
-  }
 });
 
 app.post('/delete', async (req,res) => {
@@ -119,7 +138,7 @@ app.post('/delete', async (req,res) => {
   }
   try
   {
-    await db.query(`DELETE FROM logindata WHERE email = $1`, [email]);
+    await db.query(`DELETE FROM login_credentials WHERE email = $1`, [email]);
     console.log(`success delete` +` `+ email +` `+ password);
     res.status(200).send({status:'success'});
   }
@@ -136,7 +155,7 @@ app.get('/getdata', async (req, res) => {
   try {
     // 1. Corrected the destructuring from {colums} to {rows}.
     //    Most Node.js database libraries (like 'pg') return results in a 'rows' property.
-    const { rows } = await db.query('SELECT email, password FROM logindata');
+    const { rows } = await db.query('SELECT * FROM login_credentials');
 
     // 2. Corrected the logic to check if the 'rows' array exists and is not empty.
     if (rows && rows.length > 0) {
@@ -199,54 +218,56 @@ app.post('/execPython', (req,res) => {
   if(!code){
     return res.status(400).send({status:'failed'})
   }
-
   console.log(code);
-  const pythonProcess = spawn('python3', ['-c', code]);
-
   let scriptOutput = '';
   let scriptError = '';
 
-  pythonProcess.on('error', (err) => {
+  setTimeout(() => {
+    const pythonProcess = spawn('python3', ['-c', code]);
+
+    pythonProcess.on('error', (err) => {
       console.error('Failed to start subprocess.', err);
       res.status(500).json({
           status: 'error', 
           Output: '', 
           Error: `Failed to start subprocess: ${err.message}`
       });
-  });
+    });
 
-  // Listen for data on stdout
-  pythonProcess.stdout.on('data', (data) => {
-      console.log(`stdout: ${data.toString()}`);
-      scriptOutput += data.toString();
-  });
+    // Listen for data on stdout
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data.toString()}`);
+        scriptOutput += data.toString();
+    });
 
-  // Listen for data on stderr
-  pythonProcess.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-      scriptError += data.toString();
-  });
+    // Listen for data on stderr
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+        scriptError += data.toString();
+    });
 
-  // Wait for the process to close before sending response
-  pythonProcess.on('close', (code) => {
-      console.log(`Python process exited with code ${code}`);
-      console.log('Captured output:', scriptOutput);
-      console.log('Captured error:', scriptError);
-      
-      // Send response after process is complete
-      res.status(200).json({
-          status: code === 0 ? 'success' : 'error',
-          Output: scriptOutput,
-          Error: scriptError
-      });
-  });
+    // Wait for the process to close before sending response
+    pythonProcess.on('close', (code) => {
+        console.log(`Python process exited with code ${code}`);
+        console.log('Captured output:', scriptOutput);
+        console.log('Captured error:', scriptError);
+        
+        // Send response after process is complete
+        res.status(200).json({
+            status: code === 0 ? 'success' : 'error',
+            Output: scriptOutput,
+            Error: scriptError
+        });
+    });
 
-  // Handle process exit
-  pythonProcess.on('exit', (code, signal) => {
-      if (signal) {
-          console.log(`Python process was killed by signal ${signal}`);
-      }
-  });
+    // Handle process exit
+    pythonProcess.on('exit', (code, signal) => {
+        if (signal) {
+            console.log(`Python process was killed by signal ${signal}`);
+        }
+    });
+
+  }, 1000);  
 
 })
 

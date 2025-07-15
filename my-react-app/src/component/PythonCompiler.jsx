@@ -14,81 +14,45 @@ print("Hello, World!")
     const [isRunning, setIsRunning] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const runCode = () => {
+    const runCode = async () => {
         setIsRunning(true);
         setOutput('');
         
-        // Simulate Python execution
-        setTimeout(() => {
-            try {
-                let mockOutput = code;
-                // console.log('running');
-                const execPythonCode = async () =>{
-                    try{
-                        // console.log('running');
-                        const res = await fetch('http://localhost:3000/execPython',{
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                code: code
-                            })
-                        });
-                        if(!res.ok){
-                            setOutput(await res.json());
-                            return;
-                        }
-                        const output = await res.json();
-                        console.log(output.Output);
-                        setOutput(output.Output);
-                    }
-                    catch(err){
-                        console.log('code failed');
-                    }                
-                    
-                    
-                }
+        try {
+            const res = await fetch('http://localhost:3000/execPython', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    code: code
+                })
+            });
 
-                execPythonCode();
-
-                                
-                // // Simple pattern matching for demo purposes
-                // if (code.includes('print("Hello, World!")')) {
-                //     mockOutput += 'Hello, World!\n';
-                // }
-                
-                // if (code.includes('print(f"Welcome to Python, {name}!")')) {
-                //     mockOutput += 'Welcome to Python, Student!\n';
-                // }
-                
-                // if (code.includes('print(f"Sum of numbers: {total}")')) {
-                //     mockOutput += 'Sum of numbers: 15\n';
-                // }
-                
-                // // Look for other print statements
-                // const printMatches = code.match(/print\([^)]+\)/g);
-                // if (printMatches) {
-                //     printMatches.forEach(match => {
-                //         if (!match.includes('Hello, World!') && !match.includes('Welcome to Python') && !match.includes('Sum of numbers')) {
-                //             const content = match.match(/print\(["']([^"']+)["']\)/);
-                //             if (content) {
-                //                 mockOutput += content[1] + '\n';
-                //             }
-                //         }
-                //     });
-                // }
-                
-                if (!mockOutput.trim()) {
-                    mockOutput = 'Program executed successfully';
-                }
-                
-                
-            } catch (error) {
-                setOutput(`Error: ${error.message}`);
+            if (!res.ok) {
+                const errorText = await res.text();
+                setOutput(`Error from server: ${res.status}\n${errorText}`);
+                return;
             }
+
+            const result = await res.json();
+            let finalOutput = "";
+
+            if (result.Output) {
+                finalOutput += result.Output;
+            }
+            if (result.Error) {
+                // Append error to the output, clearly marking it as an error.
+                finalOutput += (finalOutput ? '\n' : '') + `--- ERROR ---\n${result.Error}`;
+            }
+
+            setOutput(finalOutput || 'Execution finished with no output.');
+        } catch (err) {
+            console.error('Failed to execute code:', err);
+            setOutput(`An error occurred while trying to run the code: ${err.message}`);
+        } finally {
             setIsRunning(false);
-        }, 800);
+        }
     };
 
     const resetCode = () => {

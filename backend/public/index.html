@@ -16,8 +16,10 @@
 </head>
 <body>
     <div>
-        <input class="box" type="text" value="username"></input>
-        <input class="box" type="text"></input>
+        <input class="box" type="text" placeholder="email"></input>
+        <input class="box" type="text" placeholder="password"></input>
+        <input class="box" type="text" placeholder="name"></input>
+        <input class="box" type="text" placeholder="Phone Number"></input>
         <input id="get" type="submit" value="submit"/>
         <input id="post" type="submit" value="delete"/>
     </div>
@@ -37,14 +39,18 @@
         const tableHead = 
             `
                 <tr>
+                    <th>id</th>
                     <th>Username</th>
                     <th>Password</th>
+                    <th>Name</th>
+                    <th>Phone Number</th>
                 </tr>
             `;
 
         
 
         const loadData = async(e) => {
+            
             e.preventDefault();
             const res = await fetch("http://localhost:3000/getdata",{
                 method: "GET"
@@ -54,8 +60,11 @@
                 data => 
                 `
                     <tr>
+                        <td>${data.id}</td>
                         <td>${data.email}</td>
                         <td>${data.password}</td>
+                        <td>${data.name}</td>
+                        <td>${data.phonenumber}</td>
                     </tr>                
                 `
             );
@@ -75,7 +84,9 @@
         async function hanldesubmit(e){
             
             e.preventDefault();
+            
             try{
+                
                 const res = await fetch("http://localhost:3000/submit",{
                         method: "POST",
                         headers: {
@@ -83,7 +94,9 @@
                     },
                         body: JSON.stringify({
                         email: box[0].value,
-                        password: box[1].value
+                        password: box[1].value,
+                        name: box[2].value,
+                        phonenumber: box[3].value
                     })
                 });
                 if(!res.ok)
