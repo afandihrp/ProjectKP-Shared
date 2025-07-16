@@ -1,4 +1,4 @@
-import React, { useState }from 'react';
+import React, { useState, useEffect }from 'react';
 import Header from './component/Header.jsx';
 import Sidebar from './component/Sidebar.jsx';
 import Proptypes from 'prop-types';
@@ -15,7 +15,6 @@ import PythonCompiler from './component/PythonCompiler.jsx';
 function Dashboard(props)
 {
     const [marginsize, setMarginsize] = useState(280);
-    const [sidebarClosed, setSidebarClosed] = useState(true);
     const [menuSelected, selectMenu] = useState('Dashboard')
     const name = props.name;
 
@@ -27,12 +26,11 @@ function Dashboard(props)
         // alert(current_menu, menuSelected);
     }
 
-    
-    function handleMargin(){
-        setSidebarClosed(!sidebarClosed);
-        setMarginsize(sidebarClosed?115:280);
-        // alert("hai"+ sidebarClosed+ marginsize);
+    function handlesetMarginsize(value)
+    {
+        setMarginsize(value);
     }
+
 
     switch(menuSelected)
     {
@@ -44,13 +42,12 @@ function Dashboard(props)
                 handleselected_menu={handleselected_menu}
                 profilePic={props.profilePic}
                 logout={props.logout}
-                handleMargin={handleMargin}
+                setMarginsize={handlesetMarginsize}                
                 />
         
                 <Frontpage
                 name={props.name}
-                marginleft={marginsize}
-                
+                marginleft={marginsize}                
                 />
 
             </>);
@@ -62,7 +59,7 @@ function Dashboard(props)
                 handleselected_menu={handleselected_menu}
                 profilePic={props.profilePic}
                 logout={props.logout}
-                handleMargin={handleMargin}
+                setMarginsize={handlesetMarginsize}
                 />
                 <CourseListItem
                 marginleft={marginsize}
@@ -77,7 +74,7 @@ function Dashboard(props)
                 handleselected_menu={handleselected_menu}
                 profilePic={props.profilePic}
                 logout={props.logout}
-                handleMargin={handleMargin}                
+                setMarginsize={handlesetMarginsize}
                 />
 
                 <Profile
@@ -94,7 +91,7 @@ function Dashboard(props)
                 handleselected_menu={handleselected_menu}
                 profilePic={props.profilePic}
                 logout={props.logout}
-                handleMargin={handleMargin}
+                setMarginsize={handlesetMarginsize}
                 />
 
                 <PythonCompiler

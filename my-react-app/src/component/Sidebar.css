@@ -19,7 +19,7 @@
   top: 0;
   left: 0;
   height: 100vh;
-  width: 280px;
+  width: 220px;
   background-color: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   display: flex;
@@ -30,7 +30,15 @@
 }
 
 .sidebar.closed {
-  width: 115px;
+  width: 100px;
+}
+
+.sidebar.closed {
+  border: none;
+}
+
+.sidebar.closed .nav-item{
+  gap:0;
 }
 
 /* Header Section */
@@ -47,7 +55,7 @@
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.3rem;
   color: var(--accent-color);
   font-weight: 700;
   font-size: 1.25rem;
@@ -118,15 +126,15 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 0.8rem;
   background-color: var(--primary-color);
   border-radius: 16px;
   border: 1px solid var(--sidebar-border);
 }
 
 .profile-pic {
-  width: 48px;
-  height: 48px;
+  width:40px;
+  height: 40px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -185,10 +193,10 @@
 
 .nav-item {
   display: flex;
-  align-items: left;
+  align-items: center; 
   gap: 1rem;
   padding: 0.75rem 1rem;
-  
+  width: max-content;
   border-radius: 12px;
   border: none;
   background: none;
@@ -210,6 +218,7 @@
 .nav-item.active {
   background-color: var(--active-bg);
   color: var(--active-text);
+  
 }
 
 .nav-item.active::before {

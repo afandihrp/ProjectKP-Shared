@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { FaBook, FaCode, FaUser, FaSignOutAlt, FaChevronLeft, FaTachometerAlt } from "react-icons/fa";
 import './Sidebar.css';
 
@@ -25,16 +25,19 @@ const ProfilePic = ({ src, alt = "Profile" }) => (
   </div>
 );
 
+
+
 const Sidebar = ({ 
   name = "Guest", 
   menuSelected = "Dashboard", 
   profilePic = "", 
-  logout = () => {}, 
-  handleselected_menu = () => {},
-  handleMargin = () => {}
+  logout = () => {}, //callback to parent component Dashboard.jsx
+  handleselected_menu = () => {}, //callback to parent component Dashboard.jsx
+  setMarginsize = () => {} //callback to parent component Dashboard.jsx
 }) => {
-  const [sidebarClosed, setSidebarClosed] = useState(false);
-  
+  const [sidebarClosed, setSidebarClosed] = useState(window.innerWidth<=850?true:false);  
+
+
   const menuOptions = [
     { value: 'Dashboard', icon: FaTachometerAlt },
     { value: 'My Courses', icon: FaBook },
@@ -44,8 +47,13 @@ const Sidebar = ({
 
   const toggleSidebar = () => {
     setSidebarClosed(!sidebarClosed);
-    handleMargin();
   };
+
+  useEffect(() => {
+    setMarginsize(sidebarClosed?100:220);
+  }, [sidebarClosed]);
+
+
 
   return (
     <aside className={`sidebar ${sidebarClosed ? 'closed' : ''}`}>
