@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 
+
+
 // --- CSS Styles Component for Login Page ---
 const Styles = () => (
   <style>{`
@@ -167,17 +169,14 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
 
-  // const textbox = document.getElementsByClassName('form-input');
 
-  // console.log(textbox);
   const handleSignin = async (e) =>
   {
     e.preventDefault();
     
     try
-    {
-
-      const res = await fetch('http://localhost:3000/logintest',{
+    {    
+      const res = await fetch('http://localhost:3000/loginattempt',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -202,7 +201,7 @@ export default function LoginPage() {
       if(!response.redirecturl == '')
       {
         console.log(`redirecting: `+response.redirecturl);
-        return navigate(response.redirecturl);
+        // return navigate(response.redirecturl);
       }
       // console.log(serverresponse);
 

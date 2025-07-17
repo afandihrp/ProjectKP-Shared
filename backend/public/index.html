@@ -20,6 +20,7 @@
         <input class="box" type="text" placeholder="password"></input>
         <input class="box" type="text" placeholder="name"></input>
         <input class="box" type="text" placeholder="Phone Number"></input>
+        <input class="box" type="text" placeholder="role"></input>
         <input id="get" type="submit" value="submit"/>
         <input id="post" type="submit" value="delete"/>
     </div>
@@ -44,6 +45,7 @@
                     <th>Password</th>
                     <th>Name</th>
                     <th>Phone Number</th>
+                    <th>Role</th>
                 </tr>
             `;
 
@@ -51,7 +53,7 @@
 
         const loadData = async(e) => {
             
-            e.preventDefault();
+            // e.preventDefault();
             const res = await fetch("http://localhost:3000/getdata",{
                 method: "GET"
             })
@@ -65,6 +67,7 @@
                         <td>${data.password}</td>
                         <td>${data.name}</td>
                         <td>${data.phonenumber}</td>
+                        <td>${data.role}</td>
                     </tr>                
                 `
             );
@@ -75,6 +78,25 @@
             result.innerText = box[0].value;
 
         };
+
+
+        async function handlehashing(e, password){
+            e.preventDefault();
+            const res = await fetch("http://localhost:3000/hash",{
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                    password: password
+                })
+            });
+            const response = await res.json();
+            console.log(response);
+            return response;
+
+                
+        }
 
         document.addEventListener("DOMContentLoaded", loadData);
 
@@ -96,7 +118,8 @@
                         email: box[0].value,
                         password: box[1].value,
                         name: box[2].value,
-                        phonenumber: box[3].value
+                        phonenumber: box[3].value,
+                        role: box[4].value
                     })
                 });
                 if(!res.ok)
@@ -106,6 +129,7 @@
                     return;
                 }
                 loadData(e);
+                
             }
             catch(err){
                 console.log('lol');

@@ -1,18 +1,22 @@
 require('dotenv').config();
 const express = require('express');
 const { spawn } = require('child_process');
+
 const argon2 = require('argon2');
 const cors = require('cors');
 const db = require('./db');
 const { stringify } = require('querystring');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
+
+const SECRET_KEY = '2e4c5d585ea22052d99d9b03205357be872ce2008b13d2f2c94da53ec1db3592'; //'procodecg' encrypted with sha256 
 
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
 
-async function hashPassword(password) 
+async function handleHashPassword(password) 
 {
   try 
   {
@@ -26,11 +30,28 @@ async function hashPassword(password)
   }
 }
 
-app.get('/hashexample',(req,res) => {  
+async function handleVerifyPassword(hashedPassword,plainTextPassword)
+{
+  try {
+  if (await argon2.verify(hashedPassword, plainTextPassword)) 
+  {
+    return true;
+  } 
+  else 
+  {
+    return false;
+  }
+  } 
+  catch (err) {
+    console.error(err);
+  }
+}
+
+app.get('/hash',(req,res) => {  
   
   // Example usage:
-  const myPassword = 'supersecretpassword';
-  hashPassword(myPassword).then(hashedPassword => {
+  const myPassword = 'testing';
+  handleHashPassword(myPassword).then(hashedPassword => {
     res.status(200).json({hashedPassword});
     console.log('Hashed Password:', hashedPassword);
     // Store the hashedPassword in your database
@@ -38,27 +59,58 @@ app.get('/hashexample',(req,res) => {
 });
 
 
-app.post('/logintest',async (req,res) => {
+app.get('/verifyhash', async (req,res) => {
+  const {hashPassword,password} = req.body;
+
+  try
+  {
+    if(await argon2.verify(hashPassword,password))
+    {
+      res.status(200).send({status:'success verify'})
+
+    }
+    else
+    {
+      res.status(400).send({status:'failed verify'})
+    }
+  }
+  catch(err)
+  {
+    console.log(err);
+    res.status(500).send({status:'error'})
+  }
+  
+})
+
+
+
+app.post('/loginattempt',async (req,res) => {
   const {email, password} = req.body;
-  // console.log(req.body);
-  // console.log(email);
-  // console.log(password);
-  if(!email || !password )
+
+  if(!email || !password)
   {
     console.log(`invalid`);
     return res.status(400).send({status:'please insert valid credential'})
   }
   try
   {
-    const {rows} = await db.query(`SELECT email,password FROM logindata WHERE email = $1`, [email]);
-    // console.log(req.body);
-    // console.log(rows);
+    const trimmedEmail=email.trimLeft();
+    const trimmedPassword=password.trimLeft();
+    console.log(req.body, trimmedEmail, trimmedPassword);
+    const {rows} = await db.query(`SELECT id,email,password,role FROM login_credentials WHERE email = $1`, [trimmedEmail]);
+    console.log(rows)
+
+    const verifyEmail = rows[0].email === trimmedEmail;
+    const verifyPassword = await handleVerifyPassword(rows[0].password ,trimmedPassword)
+
     console.log(`${rows[0].email} == ${email}`);
-    console.log(rows[0].email === email);
-    console.log(`${rows[0].password} == ${password}`);
-    console.log(rows[0].password === password);
+    console.log(verifyEmail);
+
+    console.log(`password: ${password} ${verifyPassword}`)
+    // console.log(`${rows[0].password} == ${hashedPassword}`);
+    // console.log(rows[0].password === hashedPassword);
      
-    if(rows[0].email !== email || rows[0].password !== password)
+    if(!verifyEmail || !verifyPassword)
     {
       console.log(`invalid`);
       return res.status(400).send({status:'invalid credential'});
@@ -67,10 +119,19 @@ app.post('/logintest',async (req,res) => {
     }
     else
     {
-      console.log('login success')
-            
+      const user = {
+        id: rows[0].id,
+        email: rows[0].email,
+        role:rows[0].role
+      };
+
+      console.log('login success');
+      const combinedKey = SECRET_KEY+rows[0].password;
+      const jwtToken = jwt.sign(user, combinedKey, {expiresIn: '1h'});
+      console.log(jwtToken);
       res.status(200).send({status:'login successful',
-                           redirecturl: '/Dashboard'
+                           redirecturl: '/Dashboard',
+                           token: jwtToken
       });
     }    
    
@@ -78,44 +139,46 @@ app.post('/logintest',async (req,res) => {
   catch(err)
   {
     console.log('query failed');
-    res.status(500).send({status:'error'})
+    res.status(500).send({status:`error: ${err}`})
   }
 
 });
 
 app.post('/submit', async (req,res) => {
-  const {email, password, name, phonenumber} = req.body;
+  const {email, password, name, phonenumber,role} = req.body;
   console.log(req.body);
   let error;
+  
+  let trimmedEmail = email.trimLeft();
+  let trimmedPassword = password.trimLeft();
+
+  
 
   if(email || password){
       try{
-        await db.query(`INSERT INTO login_credentials (email, password) VALUES ($1, $2)`, [email, password]);
-        // res.status(200).send({status:'success insert credentials'})
+        console.log(email);        
+        const hashedPassword = await handleHashPassword(trimmedPassword)     
+        await db.query(`INSERT INTO login_credentials (email, password) VALUES ($1, $2)`, [trimmedEmail, hashedPassword]);
+
       }
       catch(err){
         error+=err;
         console.log(`query failed ${err}`);
-        // res.status(500).send({status:`failed ${err}`})
+ 
       }
   }      
 
-  if(name || phonenumber)
+  if(name || phonenumber || role)
   {
     try{
 
-      const log= await db.query(`update login_credentials set name = $1, phonenumber = $2`, [name,phonenumber]);
+      const log= await db.query(`update login_credentials set name = $1, phonenumber = $2, role = $3 where email = $4`, [name!=''?name:'Guest',phonenumber!=0?phonenumber:0,role!=''?role:"student",trimmedEmail]);
       console.log(log);
-      // await db.query(`insert into userdata(credentials_id, name, phonenumber) 
-      //                 values ($1, $2, $3) 
-      //                 on conflict(credentials_id) 
-      //                 do update set name = excluded.name, phonenumber = excluded.phonenumber`, [rows[0].id, name, phonenumber])
-      // res.status(200).send({status:'success insert userdata'});
+   
     }
     catch(err){
       console.log(`data insertion query failed ${err}`);
       error+=err;
-      // res.status(500).send({status:`data insertion query failed ${err}`}) 
     }
   }
   if(error)
@@ -138,8 +201,8 @@ app.post('/delete', async (req,res) => {
   }
   try
   {
-    await db.query(`DELETE FROM login_credentials WHERE email = $1`, [email]);
-    console.log(`success delete` +` `+ email +` `+ password);
+    const response = await db.query(`DELETE FROM login_credentials WHERE email = $1`, [email]);
+    console.log(`success delete` +` `+ email +` `+ password, response);
     res.status(200).send({status:'success'});
   }
   catch(err)

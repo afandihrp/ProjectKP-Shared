@@ -19,7 +19,7 @@ print("Hello, World!")
         setOutput('');
         
         try {
-            const res = await fetch('http://localhost:3000/execPython', {
+            const res = await fetch('http://147.185.221.26:5787/execPython', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -56,7 +56,11 @@ print("Hello, World!")
     };
 
     const resetCode = () => {
-        setCode(`# Write your Python code here print("Hello, World!")`);
+        setCode(`# Write your Python code here
+print("Hello, World!")
+
+
+`);
         setOutput('');
     };
 
