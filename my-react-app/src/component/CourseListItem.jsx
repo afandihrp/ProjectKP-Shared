@@ -56,6 +56,7 @@ const courseData = {
 
 export default function CourseListItem(props) {
   const [activeLesson, setActiveLesson] = useState(null);
+  const [openModuleIndex, setOpenModuleIndex] = useState(0); // Modul pertama terbuka secara default
 
   const handleLessonClick = (lesson) => {
     setActiveLesson(lesson);
@@ -71,18 +72,23 @@ export default function CourseListItem(props) {
       <main className="course-main">
         <nav className="course-sidebar">
           <h2>Course Modules</h2>
-          {courseData.modules.map((module, moduleIndex) => (
-            <div key={moduleIndex} className="module">
-              <h3>{module.moduleTitle}</h3>
-              <ul className="lesson-list">
-                {module.lessons.map((lesson, lessonIndex) => (
-                  <li key={lessonIndex} onClick={() => handleLessonClick(lesson)}>
-                    {lesson.title}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {courseData.modules.map((module, moduleIndex) => {
+            const isOpen = openModuleIndex === moduleIndex;
+            return (
+              <div key={moduleIndex} className={`module ${isOpen ? 'open' : ''}`}>
+                <h3 onClick={() => setOpenModuleIndex(isOpen ? null : moduleIndex)}>
+                  {module.moduleTitle}
+                </h3>
+                <ul className="lesson-list">
+                  {module.lessons.map((lesson, lessonIndex) => (
+                    <li key={lessonIndex} onClick={() => handleLessonClick(lesson)} className={activeLesson?.title === lesson.title ? 'active' : ''}>
+                      {lesson.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
 
         <section className="course-content">

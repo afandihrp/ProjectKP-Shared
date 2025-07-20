@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
+import cookies from 'js-cookie';
+import { useEffect } from 'react';
+
 
 
 
@@ -161,14 +164,18 @@ const Styles = () => (
 
 
 // --- Login Page Component ---
-export default function LoginPage() {
+export default function LoginPage(props) {
+  //props.handleSetToken(token)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const navigate = useNavigate();
 
+  
 
+  useEffect(()=>{
+    
+  },[]);
 
   const handleSignin = async (e) =>
   {
@@ -176,12 +183,12 @@ export default function LoginPage() {
     
     try
     {    
-      const res = await fetch('http://localhost:3000/loginattempt',{
+      const res = await fetch('http://localhost:4000/login/auth',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-          body: JSON.stringify({
+        body: JSON.stringify({
           email,
           password
         })
@@ -197,14 +204,15 @@ export default function LoginPage() {
         return;
       }
       const response = await res.json();      
-      console.log(response);
-      if(!response.redirecturl == '')
-      {
-        console.log(`redirecting: `+response.redirecturl);
-        // return navigate(response.redirecturl);
-      }
-      // console.log(serverresponse);
-
+      console.log(response.token);
+      console.log(response.refreshToken);
+      // console.log(response.user);
+      // if(!response.redirecturl == '')
+      // {
+      //   console.log(`redirecting: `+response.redirecturl);
+      // }
+      props.handleSetToken(response)
+      
     }
     catch(err)
     {
@@ -274,6 +282,23 @@ export default function LoginPage() {
             <button method="signin" type="submit" className="submit-button">Sign in</button>
           </div>
         </form>
+        <button
+          onClick={() => {
+            const token = cookies.get('token');
+            console.log(`token is: ${token}`);
+          }}
+        >
+          testGetToken
+        </button>
+        {/* <button
+          onClick={() => {
+            const now = new Date();
+            const expirationTime = new Date(now.getTime() + 60 * 60 * 1000);
+            console.log(`expires in: ${expirationTime}`);
+          }}
+        >
+          getTimeNow
+        </button> */}
         <div>
            <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'left', marginBottom: '0px', fontSize:'0.8em'}}>{errorMessage}</p>
         </div>

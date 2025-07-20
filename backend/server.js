@@ -1,11 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const { spawn } = require('child_process');
-
 const argon2 = require('argon2');
 const cors = require('cors');
 const db = require('./db');
-const { stringify } = require('querystring');
+// const { stringify } = require('querystring');
 const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
@@ -82,6 +81,14 @@ app.get('/verifyhash', async (req,res) => {
   
 })
 
+app.get('/test', async (req,res) => {
+
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTI3OTk4NjQsImV4cCI6MTc1MjgwMzQ2NH0.DyhxNMEx2fBauCefcHkXq-1uQphNpzyShh75QqPK954";
+  const key = '2e4c5d585ea22052d99d9b03205357be872ce2008b13d2f2c94da53ec1db3592'+ 	"$argon2id$v=19$m=65536,t=3,p=4$g/MiFcIrSkKXV3AmqNoVMg$O5ZRep559UB0DSEDIzkOG0r39+jdzkehgf8wLtnrxKM";
+  const decoded =  await jwt.verify(token, key);
+  console.log(decoded);
+  res.status(200).send({status:decoded})
+})
 
 
 app.post('/loginattempt',async (req,res) => {
@@ -127,7 +134,7 @@ app.post('/loginattempt',async (req,res) => {
 
       console.log('login success');
       const combinedKey = SECRET_KEY+rows[0].password;
-      const jwtToken = jwt.sign(user, combinedKey, {expiresIn: '1h'});
+      const jwtToken = jwt.sign(user, combinedKey, {expiresIn: '6h'});
       console.log(jwtToken);
       res.status(200).send({status:'login successful',
                            redirecturl: '/Dashboard',

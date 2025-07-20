@@ -67,13 +67,43 @@ body {
 .module h3 {
     font-size: 1.2em;
     color: #2c3e50;
-    margin-bottom: 15px;
+    margin-bottom: 0;
+    padding: 10px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.module h3:hover {
+    color: #3498db;
+}
+
+.module h3::after {
+    content: '▸';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    font-size: 0.8em;
+}
+
+.module.open > h3::after {
+    transform: translateY(-50%) rotate(90deg);
 }
 
 .lesson-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, margin-top 0.4s ease-out;
+}
+
+.module.open .lesson-list {
+    margin-top: 10px;
+    max-height: 500px; /* Sesuaikan jika daftar pelajaran sangat panjang */
 }
 
 .lesson-list li {
@@ -82,12 +112,20 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-bottom: 8px;
-    border: 1px solid #ecf0f1;
+    background-color: #fff;
+    border-left: 3px solid transparent;
 }
 
 .lesson-list li:hover {
-    background-color: #f4f7f6;
     color: #2980b9;
+    background-color: #ecf0f1;
+}
+
+.lesson-list li.active {
+    background-color: #eaf5fb;
+    color: #2980b9;
+    font-weight: 500;
+    border-left-color: #3498db;
 }
 
 /* Course Content Display */
