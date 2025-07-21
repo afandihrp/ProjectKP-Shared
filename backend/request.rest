@@ -3,20 +3,20 @@ Content-Type: application/json
 
 {
     "email": "test@test",
-    "password": "testding"
+    "password": "testing"
 }
 
 ###
 
 POST  http://localhost:4000/users
 Content-Type: application/json
-Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwMjM0MDksImV4cCI6MTc1MzAyMzcwOX0.fB0l74hNnQ7QMKHHTImwceb7PwFDPCNNDs829fCQDfU
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwNTE5MjMsImV4cCI6MTc1MzA1MjIyM30.ng-4l98bmmnBOl42KJL-2Pj1K_eXeIPymORZ5ifCaxo
     
 
 ###
 POST http://localhost:4000/login/refresh
 Content-Type: application/json
-Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwMjM0MDl9.EeautBagTgESgwvS8Q3o_03KwPPWc7Wg-aMWx09OSdA
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwNTE5MjN9.pfp1ccIh4ahajqkPss8P5LXQGQuAu6_wjXRj1HYZAUg
 
 
 ###
@@ -26,7 +26,7 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
 
 ###
 
-POST http://localhost:4000/test
+GET http://localhost:4000/test
 Content-Type: application/json
 Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwMTg3MTJ9.grtCcNHPH6HV-rck_eH4kLqwSxH75Q3gLC5MogRBH70
 

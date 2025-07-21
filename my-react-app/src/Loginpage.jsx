@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
-import cookies from 'js-cookie';
+import cookie from 'js-cookie';
 import { useEffect } from 'react';
 
 
@@ -162,6 +162,26 @@ const Styles = () => (
   `}</style>
 );
 
+function setToken(token){
+  cookie.set('token',token,{
+    expires: 1, // Expires in 1 day
+    secure: false, // Ensures the cookie is sent over HTTPS
+    httpOnly: false, // This is automatically handled by the browser, cannot be set via JavaScript
+  })
+}
+function setRefreshToken(refreshToken){
+  cookie.set('refreshToken', refreshToken, {
+    expires: 1, // Expires in 1 day
+    secure: false, // Ensures the cookie is sent over HTTPS
+    httpOnly: false, // This is automatically handled by the browser, cannot be set via
+  });
+}
+
+function handleSetToken(tokens){
+  setToken(tokens.token);
+  setRefreshToken(tokens.refreshToken);
+}
+
 
 // --- Login Page Component ---
 export default function LoginPage(props) {
@@ -170,13 +190,8 @@ export default function LoginPage(props) {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-
+  const navigate = useNavigate();
   
-
-  useEffect(()=>{
-    
-  },[]);
-
   const handleSignin = async (e) =>
   {
     e.preventDefault();
@@ -204,19 +219,18 @@ export default function LoginPage(props) {
         return;
       }
       const response = await res.json();      
-      console.log(response.token);
-      console.log(response.refreshToken);
-      // console.log(response.user);
-      // if(!response.redirecturl == '')
-      // {
-      //   console.log(`redirecting: `+response.redirecturl);
-      // }
-      props.handleSetToken(response)
-      
+      console.log(response);
+      // console.log(response.token);
+      // console.log(response.refreshToken);
+      setToken(response.token);
+      setRefreshToken(response.refreshToken);
+      props.setAuthenticated(true);
+  
+      navigate('/Dashboard');
     }
     catch(err)
     {
-      console.log("failed to login");
+      console.log("failed to login "+ err.message);
       setErrorMessage("server did not respond");
     }
     
@@ -284,7 +298,7 @@ export default function LoginPage(props) {
         </form>
         <button
           onClick={() => {
-            const token = cookies.get('token');
+            const token = cookie.get('token');
             console.log(`token is: ${token}`);
           }}
         >

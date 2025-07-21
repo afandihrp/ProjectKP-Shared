@@ -73,6 +73,7 @@ function Dashboard(props)
                 menuSelected={menuSelected}
                 handleselected_menu={handleselected_menu}
                 profilePic={props.profilePic}
+                phoneNumber={props.phoneNumber}
                 logout={props.logout}
                 setMarginsize={handlesetMarginsize}
                 />

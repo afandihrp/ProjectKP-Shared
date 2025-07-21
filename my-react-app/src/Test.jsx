@@ -1,9 +1,8 @@
-function Test(){
+function Test(props){
+    let test = props.authenticated?'yes':'no';
     return(
         <>
-            <input type="text"/>
-            <input type="text"/>
-            <input type="submit" value={"submit"}></input>
+            <h1>Ooops {test},.. you are not supposed to be here, try to <a href="/Login">Log In</a>😊 </h1>
         </>
     );
 }

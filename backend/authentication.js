@@ -110,31 +110,24 @@ app.use(verifyToken);
 
 
 app.post('/users', async (req,res) => {
-    const {rows} = await db.query('SELECT * FROM login_credentials');
-    console.log(`User found: ${JSON.stringify(rows[0])}`);
-    res.send(rows);
+    const id = req.user.id;
+    try
+    {
+        const {rows} = await db.query('SELECT id,email,name,phonenumber,role FROM login_credentials where id = $1', [id]);
+        console.log(`User found: ${JSON.stringify(rows[0])}`);
+        res.status(200).send(rows);
+    }
+    catch(err)
+    {
+        console.error(err);
+        return res.status(500).send(`Error: ${err.message}`);
+    }    
 });
 
 app.get('/test', async (req,res) => {
-    res.send('Hi :3');
-
-    // try
-    // {
-    //     const {rows} = await db.query('select id,email,password,role from login_credentials');
-    //     console.log(rows);
-    //     res.send({status: 'success', data: rows});
-
-    // }
-    // catch(err)
-    // {
-    //     console.error(err);
-    //     return res.send(`Error: ${err.message}`);
-    // }
+    res.status(200).send({message: "hi!"});
 });
 
-app.post('/getUserInfo', async (req,res) => {
-
-})
 
 
 app.listen(port, () => {
