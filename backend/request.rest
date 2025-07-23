@@ -10,13 +10,13 @@ Content-Type: application/json
 
 POST  http://localhost:4000/users
 Content-Type: application/json
-Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwNTE5MjMsImV4cCI6MTc1MzA1MjIyM30.ng-4l98bmmnBOl42KJL-2Pj1K_eXeIPymORZ5ifCaxo
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwODA5NDAsImV4cCI6MTc1MzA4MDk2MH0.rD6sl0LBZ1CQ3I4Njlc4MUoJB2LYcfFBX_xvxnDn_P0
     
 
 ###
 POST http://localhost:4000/login/refresh
 Content-Type: application/json
-Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwNTE5MjN9.pfp1ccIh4ahajqkPss8P5LXQGQuAu6_wjXRj1HYZAUg
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NTMwODE2MjJ9.7rk-MJmhrriw6QHiRtwvu1pPeV9ptwqj9inY3yBLgcc
 
 
 ###

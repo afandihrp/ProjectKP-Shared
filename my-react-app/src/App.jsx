@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, data } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './Loginpage';
 import Landingpage from './Landingpage';
 import Test from './Test';
@@ -13,7 +13,7 @@ const testKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidG
 async function getUserInfo(token){
   try{
     // console.log(`token is: ${token}`);
-    const res = await fetch('http://localhost:4000/users',{
+    const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/users',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ async function getUserInfo(token){
 
 async function newRefreshToken(token){
   try{
-    const res = await fetch('http://localhost:4000/login/refresh',{
+    const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/login/refresh',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ async function newRefreshToken(token){
     {
       console.log('failed to fetch data');
     }
-    // console.log(`new `+data.token);
+    console.log(`new `+data.token);
     return data;   
   }
   catch(err){
@@ -103,6 +103,7 @@ function App() {
       setAuthenticated(true);
       newRefreshToken(token).then((data) => {
         cookie.set('token', data.token);
+        console.log(`new token2: ${cookie.get('token')}`);
         getUserInfo( data.token).then((datauser) => {
           console.log(datauser[0]);
           setName(datauser[0].name);     

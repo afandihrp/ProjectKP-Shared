@@ -12,11 +12,17 @@ app.use(cors());
 const SECRET_KEY = '2e4c5d585ea22052d99d9b03205357be872ce2008b13d2f2c94da53ec1db3592'; //'procodecg' encrypted with sha256 
 const SECRET_REFRESH_KEY= '48fec683db5cdb61f859f94b123b390340ad4680b000ed96fa92c051cc140cfe'; // 'refreshprocodecg' encrypted with sha256 
 
+const userss = {
+    "id": 67,
+    "email": "test@test",
+    "role": "student",
+}
+
 let refreshTokens = []
 
 function generateToken(user)
 {
-    return jwt.sign(user, SECRET_KEY, {expiresIn: '5m'});    
+    return jwt.sign(user, SECRET_KEY, {expiresIn: '20m'});    
 }
 
 function generateRefreshToken(user)
@@ -83,6 +89,7 @@ app.post('/login/auth', async (req,res) => {
 
 app.post('/login/refresh', verifyRefreshToken, (req,res) => {
     const token = generateToken(req.user);
+    console.log(`new token: ${token}`);
     res.status(200).send({"token": token, "user": req.user});
 });
 
@@ -100,8 +107,9 @@ app.get('/getEternalToken',(req,res) => {
             role: "student"
         }
     
-    const token = jwt.sign(user,SECRET_KEY);
-    res.send({token});
+    const token = jwt.sign(user, SECRET_KEY);
+    const refreshToken = generateRefreshToken(user)
+    res.send({token, refreshToken});
 });
 
 // anything below this comment requires authentication//

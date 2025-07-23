@@ -198,7 +198,7 @@ export default function LoginPage(props) {
     
     try
     {    
-      const res = await fetch('http://localhost:4000/login/auth',{
+      const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/login/auth',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -244,7 +244,7 @@ const Hero = () => (
                 Unlock Your Potential. <br /> Learn Without Limits.
             </h1>
             <p className="hero-subtitle">
-                Join thousands of learners on Learnify. Access high-quality courses from expert instructors, anytime, anywhere.
+                Join thousands of learners on ProcodeCG. Access high-quality courses from expert instructors, anytime, anywhere.
             </p>
             <a href="#" className="hero-cta-button">
                 Get Started
@@ -258,7 +258,7 @@ const Footer = () => (
         <div className="container">
             <div className="footer-grid">
                 <div className="footer-column">
-                    <h3>Learnify</h3>
+                    <h3>ProcodeCG</h3>
                     <p>Your partner in lifelong learning.</p>
                 </div>
                 <div className="footer-column">
