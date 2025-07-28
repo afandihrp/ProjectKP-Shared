@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    https: false,
     allowedHosts: ['localhost','thing-fountain.gl.at.ply.gg', '127.0.0.1'],
     proxy: {
       '/api': {

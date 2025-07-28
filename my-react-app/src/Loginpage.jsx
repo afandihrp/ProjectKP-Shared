@@ -192,7 +192,7 @@ export default function LoginPage(props) {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const navigate = useNavigate();
   
-  const handleSignin = async (e) =>
+  const handleSignin =  async (e) =>
   {
     e.preventDefault();
     
@@ -296,22 +296,13 @@ export default function LoginPage(props) {
             <button method="signin" type="submit" className="submit-button">Sign in</button>
           </div>
         </form>
-        <button
+        {/* <button
           onClick={() => {
             const token = cookie.get('token');
             console.log(`token is: ${token}`);
           }}
         >
           testGetToken
-        </button>
-        {/* <button
-          onClick={() => {
-            const now = new Date();
-            const expirationTime = new Date(now.getTime() + 60 * 60 * 1000);
-            console.log(`expires in: ${expirationTime}`);
-          }}
-        >
-          getTimeNow
         </button> */}
         <div>
            <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'left', marginBottom: '0px', fontSize:'0.8em'}}>{errorMessage}</p>

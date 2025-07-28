@@ -1,6 +1,10 @@
 import React, { useState,useEffect } from 'react';
-import { FaBook, FaCode, FaUser, FaSignOutAlt, FaChevronLeft, FaTachometerAlt } from "react-icons/fa";
+import { FaBook, FaCode, FaUser, FaSignOutAlt, FaChevronLeft, FaTachometerAlt, FaUserPlus } from "react-icons/fa";
 import './Sidebar.css';
+import { Navigate } from 'react-router-dom';
+import { hasPermission } from '../role.js';
+
+
 
 // Mock logo component - replace with your actual logo
 const Logo = () => (
@@ -31,18 +35,21 @@ const Sidebar = ({
   name = "Guest", 
   menuSelected = "Dashboard", 
   profilePic = "", 
+  role="",
   logout = () => {}, //callback to parent component Dashboard.jsx
   handleselected_menu = () => {}, //callback to parent component Dashboard.jsx
   setMarginsize = () => {} //callback to parent component Dashboard.jsx
 }) => {
   const [sidebarClosed, setSidebarClosed] = useState(window.innerWidth<=850?true:false);  
-
+  // const {name,phoneNumber,profileImage,role} = useContext(userInfo);
+  // const profilePic = profileImage;
 
   const menuOptions = [
     { value: 'Dashboard', icon: FaTachometerAlt },
     { value: 'My Courses', icon: FaBook },
     { value: 'Profile', icon: FaUser },
-    { value: 'Python Compiler', icon: FaCode }
+    { value: 'Python Compiler', icon: FaCode },
+    ...(hasPermission({usrRole:role}, 'create:user')?[{ value: 'Add User', icon: FaUserPlus }]:[])
   ];
 
   const toggleSidebar = () => {
@@ -52,6 +59,10 @@ const Sidebar = ({
   useEffect(() => {
     setMarginsize(sidebarClosed?100:220);
   }, [sidebarClosed]);
+
+  const logoutUser = () => {    
+    logout();
+  }
 
 
 
@@ -107,7 +118,7 @@ const Sidebar = ({
       <div className="sidebar-footer">
         <button 
           className="nav-item logout-btn"
-          onClick={logout}
+          onClick={logoutUser}
           title="Logout"
         >
           <div className="nav-icon">

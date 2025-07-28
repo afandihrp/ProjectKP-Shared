@@ -1,0 +1,38 @@
+.container{
+    padding: 10px;
+    transition: all 0.2s ease-in-out ;
+}
+
+.container header{
+    border: 1px #0000003a solid;
+    border-radius: 10px;
+    margin-bottom: 20px;     
+}
+.container header h1{
+    text-align: center;
+}
+
+.inputForm{
+  display: flex;
+  flex-direction: column; /* This change aligns items vertically */
+  gap: 10px; /* Optional: Adds space between the input boxes */
+  margin-bottom: 10px;
+}
+
+.table{
+    overflow-x: auto; /* Enables horizontal scrolling */
+    width: 100%;      /* Ensures the wrapper doesn't overflow its container */
+}
+
+.container table,th,td{    
+    border-collapse: collapse;
+    border: 1px #0000003a solid;
+    padding: 5px 20px;
+    width: 100%;
+
+}
+.container table td{
+    padding: 2px;
+    text-align: left;
+}
+

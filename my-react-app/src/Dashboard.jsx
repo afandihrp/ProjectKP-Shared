@@ -6,6 +6,10 @@ import Frontpage from './component/Frontpage.jsx';
 import CourseListItem from './component/CourseListItem.jsx';
 import Profile from './component/Profile.jsx';
 import PythonCompiler from './component/PythonCompiler.jsx';
+import MyCoursesPage from './component/MyCoursesPage.jsx';
+import AdminCoursesPage from './component/AdminCoursesPage.jsx';
+import AddUser from './component/AddUser.jsx';
+
 
 
 
@@ -31,19 +35,26 @@ function Dashboard(props)
         setMarginsize(value);
     }
 
+    const sidebar = () =>{
+        return(
+             <Sidebar
+                name={props.name}
+                menuSelected={menuSelected}
+                handleselected_menu={handleselected_menu}
+                profilePic={props.profilePic}
+                role={props.role}
+                logout={props.logout}
+                setMarginsize={handlesetMarginsize}                
+            />
+        );
+    }
+
 
     switch(menuSelected)
     {
         case 'Dashboard':
             return(<>
-                <Sidebar
-                name={props.name}
-                menuSelected={menuSelected}
-                handleselected_menu={handleselected_menu}
-                profilePic={props.profilePic}
-                logout={props.logout}
-                setMarginsize={handlesetMarginsize}                
-                />
+                {sidebar()}
         
                 <Frontpage
                 name={props.name}
@@ -53,30 +64,15 @@ function Dashboard(props)
             </>);
         case 'My Courses':
             return(<>
-                <Sidebar
-                name={props.name}
-                menuSelected={menuSelected}
-                handleselected_menu={handleselected_menu}
-                profilePic={props.profilePic}
-                logout={props.logout}
-                setMarginsize={handlesetMarginsize}
-                />
-                <CourseListItem
+                {sidebar()}
+                <MyCoursesPage
                 marginleft={marginsize}
                 />
             </>);
         
         case 'Profile':
             return(<>
-                <Sidebar
-                name={props.name}
-                menuSelected={menuSelected}
-                handleselected_menu={handleselected_menu}
-                profilePic={props.profilePic}
-                phoneNumber={props.phoneNumber}
-                logout={props.logout}
-                setMarginsize={handlesetMarginsize}
-                />
+                {sidebar()}
 
                 <Profile
                 name={props.name}
@@ -86,19 +82,20 @@ function Dashboard(props)
             </>);
         case 'Python Compiler':
             return(<>
-                <Sidebar
-                name={props.name}
-                menuSelected={menuSelected}
-                handleselected_menu={handleselected_menu}
-                profilePic={props.profilePic}
-                logout={props.logout}
-                setMarginsize={handlesetMarginsize}
-                />
+                {sidebar()}
 
                 <PythonCompiler
                 marginleft={marginsize}
                 />
 
+
+            </>);
+        case 'Add User':
+            return(<>
+                {sidebar()}
+                <AddUser
+                marginleft={marginsize}
+                />
 
             </>);
     }
