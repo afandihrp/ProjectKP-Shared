@@ -77,34 +77,22 @@ body {
     border-color: #d1d5db;
 }
 
-.module h3 {
+.module > h3 {
     font-size: 1.1rem;
     font-weight: 600;
     color: #374151;
     margin: 0;
     padding: 1rem 1.5rem;
     cursor: pointer;
-    position: relative;
     transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 3.5rem;
 }
 
-.module h3:hover {
-    background-color: #f9fafb;
-}
-
-.module h3::after {
-    content: '›'; /* Using a more modern chevron */
-    position: absolute;
-    right: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.3s ease;
-    font-size: 1.5rem;
-    color: #9ca3af;
-}
-
-.module.open > h3::after {
-    transform: translateY(-50%) rotate(90deg); /* Rotates the chevron */
+.module > h3:hover {
+    background-color: #f4f4f5;
 }
 
 .lesson-list {
@@ -129,6 +117,8 @@ body {
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
     border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
 }
 
 .lesson-list li:hover {
@@ -179,4 +169,350 @@ body {
 .welcome-message h2 {
     font-size: 2em;
     margin-bottom: 10px;
+}
+
+/* --- New Task Styles --- */
+.interactive-tasks-container {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 12px;
+    background-color: #f9fafb; /* gray-50 */
+}
+.tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+.tasks-header h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #1f2937; /* gray-800 */
+}
+.tasks-header span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6b7280; /* gray-500 */
+}
+.task-prompt {
+    font-size: 1.05rem;
+    color: #374151; /* gray-700 */
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.quiz-option-btn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #d1d5db; /* gray-300 */
+    border-radius: 8px;
+    background-color: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+.quiz-option-btn:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+.quiz-option-btn.selected {
+    background-color: #3b82f6; /* blue-500 */
+    color: white;
+    border-color: #3b82f6;
+    font-weight: 600;
+}
+.quiz-option-btn.correct {
+    background-color: #ecfdf5; /* green-50 */
+    border-color: #10b981; /* green-500 */
+    color: #047857; /* green-700 */
+    font-weight: 600;
+}
+.quiz-option-btn.correct:hover {
+    background-color: #d1fae5; /* green-100 */
+}
+.quiz-option-btn.incorrect {
+    background-color: #fef2f2; /* red-50 */
+    border-color: #ef4444; /* red-500 */
+    color: #b91c1c; /* red-700 */
+    font-weight: 600;
+}
+.quiz-option-btn.incorrect:hover {
+    background-color: #fee2e2; /* red-100 */
+}
+.quiz-option-btn .option-text {
+    flex-grow: 1;
+}
+.quiz-option-btn .option-icon {
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+.check-answer-container {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+.essay-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+.essay-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.essay-textarea:focus {
+    outline: none;
+    border-color: #3b82f6; /* blue-500 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.essay-footer {
+    margin-top: 0.5rem;
+    text-align: right;
+}
+.essay-char-count {
+    font-size: 0.85rem;
+    color: #6b7280; /* gray-500 */
+}
+.check-answer-btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #3b82f6; /* blue-500 */
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.tasks-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+.tasks-navigation button {
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.tasks-navigation button:hover:not(:disabled) {
+    background-color: #f3f4f6; /* gray-100 */
+}
+.tasks-navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #e5e7eb;
+}
+.check-answer-btn:hover:not(:disabled) {
+    background-color: #2563eb; /* blue-600 */
+}
+.check-answer-btn:disabled {
+    background-color: #9ca3af; /* gray-400 */
+    cursor: not-allowed;
+}
+.module > h3 > span {
+  /* Memberi ruang antara judul dan ikon panah */
+  margin-right: 1rem;
+  /* flex-grow agar judul mengambil sisa ruang yang tersedia */
+  flex-grow: 1;
+}
+.lesson-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Jarak antara ikon dan teks */
+}
+.lesson-list li.locked {
+  cursor: not-allowed;
+  color: #9ca3af;
+}
+.lesson-icon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+}
+.lesson-icon.completed {
+  color: #10b981; /* green-500 */
+}
+.lesson-icon.locked {
+  color: #9ca3af; /* gray-400 */
+}
+.lesson-icon.todo {
+  color: #6b7280; /* gray-500 */
+}
+.module-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.module-progress {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background-color: #eff6ff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+.module-progress-text {
+  font-size: 0.8rem;
+  color: #6b7280; /* gray-500 */
+  font-weight: 400;
+}
+.course-header .back-button-wrapper {
+    margin-bottom: 1rem;
+}
+.course-header .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+}
+.no-modules-placeholder p {
+    color: #64748b;
+}
+
+/* Styles for Lesson Editor View */
+.lesson-editor-view {
+    padding: 2rem 2.5rem;
+    background-color: #f8fafc;
+}
+
+.lesson-editor-view header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lesson-editor-view .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.lesson-editor-view .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #475569;
+}
+
+.lesson-editor-view .form-group input,
+.lesson-editor-view .form-group textarea,
+.lesson-editor-view .form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.lesson-editor-view .form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.lesson-editor-view h3 {
+    font-size: 1.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+}
+
+.task-editor-item {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.task-editor-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.task-editor-item-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #334155;
+}
+
+.task-editor-item-header .task-type {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background-color: #e2e8f0;
+    color: #475569;
+    text-transform: capitalize;
+}
+
+.mcq-options-editor .option-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.mcq-options-editor .option-item input[type="text"] {
+    flex-grow: 1;
+}
+
+.lesson-editor-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-save-lesson {
+    padding: 0.75rem 1.5rem;
+    background-color: #16a34a; /* green-600 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-save-lesson:hover {
+    background-color: #15803d; /* green-700 */
 }

@@ -1,105 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import './CourseListItem.css';
 import { CgChevronDown, CgChevronUp } from "react-icons/cg";
-import { FaArrowLeft, FaCheckCircle, FaLock, FaPlayCircle } from 'react-icons/fa';
+import { FaArrowLeft, FaCheckCircle, FaLock, FaPlayCircle, FaChevronLeft, FaChevronRight, FaCheck, FaTimes } from 'react-icons/fa';
 import PythonCompiler from './PythonCompiler.jsx';
+import dataFetch from '../handleFetching.js';
+import { tokenAPI } from '../App.jsx';
 
-const courseData = {
-  courseTitle: 'Jalur Belajar Dasar Pemrograman',
-  courseDescription: 'Mulai perjalanan Anda di dunia coding dengan mempelajari tiga pilar fundamental: Bahasa C untuk logika, Python untuk aplikasi serbaguna, dan Web Development untuk membangun situs interaktif.',
-  modules: [
-    {
-      moduleTitle: 'Python untuk Pemula',
-      lessons: [
-        {
-          title: 'Selamat Datang di Dunia Python!',
-          subtitle: 'Bahasa yang Mudah Dibaca.',
-          content: 'Mengenal keunggulan Python, melakukan instalasi, dan menulis program pertama Anda dengan sintaks yang bersih.',
-          hasCompiler: true
-        },
-        {
-          title: 'Sintaks Dasar Python',
-          subtitle: 'Variabel Dinamis dan Operasi.',
-          content: 'Mempelajari variabel tanpa deklarasi tipe, operasi string, dan cara menerima input dari pengguna.'
-        },
-        {
-          title: 'Struktur Data Intuitif',
-          subtitle: 'List, Tuple, dan Dictionary.',
-          content: 'Menguasai struktur data bawaan Python yang powerful seperti List, Tuple, dan Dictionary untuk mengorganisir data.'
-        },
-        {
-          title: 'Logika dan Perulangan',
-          subtitle: 'Mengontrol Alur dengan Mudah.',
-          content: 'Menerapkan logika kondisional (if-elif-else) dan perulangan (for, while) dengan sintaks Python yang ekspresif.'
-        }
-      ]
-    },
-    {
-      moduleTitle: 'Bahasa C untuk logika pemograman',
-      lessons: [
-        {
-          title: 'Pengenalan dan Persiapan',
-          subtitle: 'Memulai dengan Bahasa C.',
-          content: "Mempelajari sejarah, keunggulan, dan cara menyiapkan lingkungan pengembangan untuk Bahasa C, diakhiri dengan program 'Hello, World!'."
-        },
-        {
-          title: 'Variabel, Tipe Data, dan Operator',
-          subtitle: 'Blok Bangunan Dasar Program.',
-          content: 'Memahami cara menyimpan data dengan variabel, berbagai tipe data dasar, serta melakukan operasi matematika dan logika.'
-        },
-        {
-          title: 'Kontrol Alur Program (Logic)',
-          subtitle: "Membuat Program 'Pintar'.",
-          content: 'Mengontrol bagaimana program berjalan menggunakan percabangan (if-else, switch) dan perulangan (for, while).'
-        },
-        {
-          title: 'Array dan String',
-          subtitle: 'Mengelola Kumpulan Data.',
-          content: 'Belajar menggunakan Array untuk menyimpan banyak data sejenis dan memahami String sebagai array karakter.'
-        },
-        {
-          title: 'Function dan Pointer',
-          subtitle: 'Kode Modular dan Akses Memori.',
-          content: 'Menulis fungsi untuk kode yang bisa dipakai ulang dan pengenalan konsep pointer yang menjadi ciri khas Bahasa C.'
-        }
-      ]
-    },
-    {
-      moduleTitle: 'Dasar-Dasar Web Development',
-      lessons: [
-        {
-          title: 'HTML: Kerangka Website',
-          subtitle: 'Membangun Struktur Halaman Web.',
-          content: 'Mempelajari tag-tag fundamental HTML untuk membuat struktur konten, dari teks dan gambar hingga form dan tabel.'
-        },
-        {
-          title: 'CSS: Menghias Website',
-          subtitle: 'Memberi Gaya dan Tampilan Visual.',
-          content: 'Menggunakan CSS untuk mengatur warna, font, layout, dan memahami konsep penting seperti Box Model dan Flexbox.'
-        },
-        {
-          title: 'JavaScript: Membuat Website Interaktif',
-          subtitle: 'Menambahkan Logika ke Halaman Web.',
-          content: 'Pengenalan JavaScript untuk memanipulasi elemen HTML (DOM), merespons aksi pengguna (events), dan membuat website lebih hidup.'
-        },
-        {
-            title: 'Proyek Akhir: Halaman Portofolio',
-            subtitle: 'Menggabungkan Semua Pilar Web.',
-            content: 'Menggabungkan HTML, CSS, dan JavaScript untuk membangun sebuah halaman portofolio pribadi yang sederhana namun fungsional.'
-        }
-      ]
-    }
-  ]
-};
-
-export default function CourseListItem(props) {
+export default function CourseListItem({ course, marginleft, onBackToCourseList }) {
   const [currentView, setCurrentView] = useState('list'); // 'list' or 'lesson'
   const [activeLesson, setActiveLesson] = useState(null);
   const [openModuleIndex, setOpenModuleIndex] = useState(0); // Modul pertama terbuka secara default
   const [completedLessons, setCompletedLessons] = useState(new Set());
 
+  // State untuk menangani tugas interaktif
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [taskAnswers, setTaskAnswers] = useState({});
+  const [checkedAnswers, setCheckedAnswers] = useState({}); // { taskId: { status: 'correct' | 'incorrect', selected: 'userAnswer' } }
+  const { getToken, newRefreshToken } = useContext(tokenAPI);
+
   // Create a flat array of all lessons for easier navigation and progress tracking
-  const allLessons = useMemo(() => courseData.modules.flatMap(m => m.lessons), []);
+  const allLessons = useMemo(() => (course.modules || []).flatMap(m => m.lessons), [course.modules]);
 
   const isLessonUnlocked = (lesson) => {
     const lessonIndex = allLessons.findIndex(l => l.title === lesson.title);
@@ -118,18 +38,27 @@ export default function CourseListItem(props) {
     }
     return null; // This is the last lesson
   };
+newRefreshToken().then(() => {
+  const test = new dataFetch("/course", null, getToken().token, "GET");
+  const data = test.makeRequest()
+  console.log(data);
+}
+)
+
 
   const handleLessonClick = (lesson) => {
     if (isLessonUnlocked(lesson)) {
       setActiveLesson(lesson);
       setCurrentView('lesson');
+      setCurrentTaskIndex(0); // Reset task index saat membuka materi baru
+      setTaskAnswers({}); // Reset jawaban saat membuka materi baru
+      setCheckedAnswers({}); // Reset jawaban yang sudah diperiksa
     }
   };
 
   const handleCompleteAndReturn = () => {
     if (!activeLesson) return;
 
-    // Mark current lesson as complete if it's not already
     if (!completedLessons.has(activeLesson.title)) {
       const newCompleted = new Set(completedLessons);
       newCompleted.add(activeLesson.title);
@@ -149,117 +78,45 @@ export default function CourseListItem(props) {
     setActiveLesson(null);
   };
 
+  const handleTaskAnswer = (taskId, answer) => {
+    setTaskAnswers(prev => ({ ...prev, [taskId]: answer }));
+  };
+
+  const handleCheckAnswer = (task) => {
+    const userAnswer = taskAnswers[task.id];
+    if (!userAnswer) return;
+
+    const isCorrect = userAnswer === task.correctAnswer;
+    setCheckedAnswers(prev => ({
+        ...prev,
+        [task.id]: {
+            status: isCorrect ? 'correct' : 'incorrect',
+            selected: userAnswer
+        }
+    }));
+  };
+
+  const isTaskComplete = (task) => {
+    if (task.type === 'multiple-choice') {
+        return !!checkedAnswers[task.id];
+    }
+    // Untuk compiler dan esai, kita anggap "selesai" untuk mengizinkan navigasi
+    return true;
+  };
+
   return (
     <>
-      <style>{`
-        .module > h3 {
-          /* Menggunakan Flexbox untuk layout yang stabil */
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          cursor: pointer;
-          /* Menetapkan tinggi minimum untuk mengakomodasi 2 baris teks,
-             agar ukuran kartu tidak berubah tinggi saat judulnya panjang dan harus wrap. */
-          min-height: 3.5rem;
-        }
-        /* Menghapus panah duplikat yang dibuat oleh file CSS eksternal */
-        .module > h3::after {
-          content: none;
-        }
-        .module > h3:hover {
-          background-color: #f4f4f5;
-        }
-        .module > h3 > span {
-          /* Memberi ruang antara judul dan ikon panah */
-          margin-right: 1rem;
-          /* flex-grow agar judul mengambil sisa ruang yang tersedia */
-          flex-grow: 1;
-        }
-        .lesson-list li {
-          display: flex;
-          align-items: center;
-        }
-        .lesson-item-left {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem; /* Jarak antara ikon dan teks */
-        }
-        .lesson-list li.locked {
-          cursor: not-allowed;
-          color: #9ca3af;
-        }
-        .lesson-icon {
-          flex-shrink: 0;
-          width: 1rem;
-          height: 1rem;
-        }
-        .lesson-icon.completed {
-          color: #10b981; /* green-500 */
-        }
-        .lesson-icon.locked {
-          color: #9ca3af; /* gray-400 */
-        }
-        .lesson-icon.todo {
-          color: #6b7280; /* gray-500 */
-        }
-        .module-header-right {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-        .module-progress {
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: #3b82f6;
-          background-color: #eff6ff;
-          padding: 0.2rem 0.6rem;
-          border-radius: 20px;
-        }
-        .module-progress-text {
-          font-size: 0.8rem;
-          color: #6b7280; /* gray-500 */
-          font-weight: 400;
-        }
-        .course-header .back-button-wrapper {
-            margin-bottom: 1rem;
-        }
-        .course-header .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: none;
-            border: none;
-            color: #3b82f6;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 0.25rem 0;
-            font-size: 0.9rem;
-        }
-        .compiler-task-wrapper {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb; /* gray-200 */
-        }
-        .compiler-task-wrapper h3 {
-            margin-bottom: 0.5rem;
-        }
-        .compiler-task-wrapper p {
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-            color: #4b5563; /* gray-600 */
-        }
-      `}</style>
-      <div className="course-page" style={{ marginLeft: props.marginleft+'px'}}>
+      <div className="course-page" style={{ marginLeft: marginleft+'px'}}>
       <header className="course-header">
-        {props.onBackToCourseList && (
+        {onBackToCourseList && (
             <div className="back-button-wrapper">
-                <button onClick={props.onBackToCourseList} className="back-button">
+                <button onClick={onBackToCourseList} className="back-button">
                     <FaArrowLeft /> Kembali ke Semua Kursus
                 </button>
             </div>
         )}
-        <h1>{courseData.courseTitle}</h1>
-        <p>{courseData.courseDescription}</p>
+        <h1>{course.title}</h1>
+        <p>{course.description}</p>
       </header>
 
       <main className="course-main">
@@ -267,11 +124,12 @@ export default function CourseListItem(props) {
           {currentView === 'list' && (
             <div className="modules-container">
               <h2>Materi Pembelajaran</h2>
-              {courseData.modules.map((module, moduleIndex) => {
+              {(course.modules || []).map((module, moduleIndex) => {
                 const isOpen = openModuleIndex === moduleIndex;
-                const completedInModule = module.lessons.filter(l => completedLessons.has(l.title)).length;
-              const progressText = `${completedInModule} / ${module.lessons.length} lessons`;
-                const progress = module.lessons.length > 0 ? Math.round((completedInModule / module.lessons.length) * 100) : 0;
+                const completedInModule = (module.lessons || []).filter(l => completedLessons.has(l.title)).length;
+                const totalLessons = (module.lessons || []).length;
+                const progressText = `${completedInModule} / ${totalLessons} lessons`;
+                const progress = totalLessons > 0 ? Math.round((completedInModule / totalLessons) * 100) : 0;
 
                 return (
                   <div key={moduleIndex} className={`module ${isOpen ? 'open' : ''}`}>
@@ -284,7 +142,7 @@ export default function CourseListItem(props) {
                       </div>
                     </h3>
                     <ul className="lesson-list">
-                      {module.lessons.map((lesson, lessonIndex) => {
+                      {(module.lessons || []).map((lesson, lessonIndex) => {
                         const unlocked = isLessonUnlocked(lesson);
                         return (
                           <li key={lessonIndex} onClick={() => handleLessonClick(lesson)} className={!unlocked ? 'locked' : ''}>
@@ -317,16 +175,106 @@ export default function CourseListItem(props) {
               </div>
               <div className="lesson-content-body">
                 <p>{activeLesson.content}</p>
-                {activeLesson.hasCompiler && (
-                  <div className="compiler-task-wrapper">
-                    <h3>Latihan Praktik: Jalankan Kode Pertamamu</h3>
-                    <p>
-                      Gunakan compiler di bawah ini untuk menjalankan kode Python. Coba ubah pesan di dalam <code>print()</code> dan lihat hasilnya!
-                    </p>
-                    {/* Compiler sudah berada di dalam container yang memiliki margin, jadi kita beri nilai 0 */}
-                    <PythonCompiler marginleft={0} />
-                  </div>
-                )}
+                {/* --- Bagian Tugas Interaktif Baru --- */}
+                {activeLesson.tasks && activeLesson.tasks.length > 0 && (() => {
+                  const task = activeLesson.tasks[currentTaskIndex];
+                  if (!task) return null;
+
+                  return (
+                    <div className="interactive-tasks-container">
+                      <div className="tasks-header">
+                        <h4>Latihan & Uji Pemahaman</h4>
+                        <span>Tugas {currentTaskIndex + 1} dari {activeLesson.tasks.length}</span>
+                      </div>
+
+                      <div className="task-content">
+                        <p className="task-prompt">{task.prompt}</p>
+                        
+                        {task.type === 'compiler' && (
+                          <PythonCompiler marginleft={0} />
+                        )}
+
+                        {task.type === 'multiple-choice' && (() => {
+                            const isChecked = checkedAnswers[task.id];
+                            return (
+                                <>
+                                    <div className="quiz-options">
+                                        {task.options.map((option, index) => {
+                                            let btnClass = 'quiz-option-btn';
+                                            if (isChecked) {
+                                                if (option === task.correctAnswer) {
+                                                    btnClass += ' correct';
+                                                } else if (option === isChecked.selected) {
+                                                    btnClass += ' incorrect';
+                                                }
+                                            } else if (taskAnswers[task.id] === option) {
+                                                btnClass += ' selected';
+                                            }
+
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => !isChecked && handleTaskAnswer(task.id, option)}
+                                                    className={btnClass}
+                                                    disabled={isChecked}
+                                                >
+                                                    <span className="option-text">{option}</span>
+                                                    {isChecked && option === task.correctAnswer && <FaCheck className="option-icon" />}
+                                                    {isChecked && option === isChecked.selected && option !== task.correctAnswer && <FaTimes className="option-icon" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    {!isChecked && (
+                                        <div className="check-answer-container">
+                                            <button 
+                                                className="check-answer-btn" 
+                                                onClick={() => handleCheckAnswer(task)}
+                                                disabled={!taskAnswers[task.id]}
+                                            >
+                                                Periksa Jawaban
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
+
+                        {task.type === 'essay' && (
+                          <div className="essay-wrapper">
+                              <textarea
+                                  className="essay-textarea"
+                                  value={taskAnswers[task.id] || ''}
+                                  onChange={(e) => handleTaskAnswer(task.id, e.target.value)}
+                                  placeholder="Tuliskan jawaban Anda di sini..."
+                                  rows="10"
+                              />
+                              <div className="essay-footer">
+                                  <span className="essay-char-count">
+                                      {(taskAnswers[task.id] || '').length} karakter
+                                  </span>
+                              </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="tasks-navigation">
+                        <button 
+                          onClick={() => setCurrentTaskIndex(i => i - 1)} 
+                          disabled={currentTaskIndex === 0}
+                        >
+                          <FaChevronLeft /> Sebelumnya
+                        </button>
+                        <button 
+                          onClick={() => setCurrentTaskIndex(i => i + 1)} 
+                          disabled={currentTaskIndex === activeLesson.tasks.length - 1 || !isTaskComplete(task)}
+                        >
+                          Berikutnya <FaChevronRight />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
               <div className="lesson-footer">
                 <button className="lesson-nav-button" onClick={handleCompleteAndReturn}>
@@ -338,6 +286,6 @@ export default function CourseListItem(props) {
         </section>
       </main>
     </div>
-    </>
+    </> 
   );
 }

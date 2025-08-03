@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 import cookie from 'js-cookie';
 import { useEffect } from 'react';
+import dataFetch from './handleFetching';
 
 
 
@@ -200,6 +201,7 @@ export default function LoginPage(props) {
     {    
       const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/login/auth',{
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -237,6 +239,30 @@ export default function LoginPage(props) {
 
    
   }
+
+  const getcookie = async () => {
+    console.log("Attempting to fetch and set cookie...");
+    try {
+      const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/setcookie/eeeeeee', {
+        method: 'GET',
+        credentials: 'include' // Still crucial
+      });
+
+      console.log("Fetch completed. Status:", res.status, res.statusText);
+      const responseText = await res.text();
+      console.log("Server response text:", responseText);
+
+      if (!res.ok) {
+        console.error("Server returned an error status.");
+      } else {
+        console.log("Fetch successful. Check Network tab for Set-Cookie header.");
+        console.log("Click the button again to check if cookie is sent back.");
+      }
+    } catch (error) {
+      console.error('Fetch error occurred:', error);
+      // Check browser console for network/CORS errors specifically
+    }
+  };
   
   return (
     <div className="login-body">
@@ -296,14 +322,16 @@ export default function LoginPage(props) {
             <button method="signin" type="submit" className="submit-button">Sign in</button>
           </div>
         </form>
-        {/* <button
+        <button
           onClick={() => {
-            const token = cookie.get('token');
-            console.log(`token is: ${token}`);
+            getcookie();
+
+            // const token = cookie.get('token');
+            // console.log(`token is: ${token}`);
           }}
         >
           testGetToken
-        </button> */}
+        </button>
         <div>
            <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'left', marginBottom: '0px', fontSize:'0.8em'}}>{errorMessage}</p>
         </div>

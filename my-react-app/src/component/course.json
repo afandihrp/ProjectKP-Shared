@@ -1,0 +1,92 @@
+[
+    {
+        "id": "dasar-pemrograman",
+        "title": "Jalur Belajar Dasar Pemrograman",
+        "description": "Mulai perjalanan Anda di dunia coding dengan mempelajari tiga pilar fundamental: C, Python, dan Web Development.",
+        "icon": "FaCode",
+        "color": "#3b82f6",
+        "available": true,
+        "modules": [
+            {
+                "moduleTitle": "Pengenalan Pemrograman",
+                "lessons": [
+                    { 
+                        "title": "Apa itu Pemrograman?", 
+                        "subtitle": "Pengenalan Konsep Dasar",
+                        "content": "Mengenal apa itu kode, bagaimana komputer memahaminya, dan mengapa pemrograman adalah skill penting di era digital saat ini. Materi ini dilengkapi dengan latihan compiler, kuis, dan esai.",
+                        "tasks": [
+                            {
+                                "id": "task-compiler-1",
+                                "type": "compiler",
+                                "prompt": "Gunakan compiler di bawah ini untuk menjalankan kode Python. Coba ubah pesan di dalam print() dan lihat hasilnya!"
+                            },
+                            {
+                                "id": "task-mcq-1",
+                                "type": "multiple-choice",
+                                "prompt": "Apa fungsi utama dari sebuah compiler?",
+                                "options": ["Menulis kode", "Menerjemahkan kode ke bahasa mesin", "Menjalankan program", "Mencari error"],
+                                "correctAnswer": "Menerjemahkan kode ke bahasa mesin"
+                            },
+                            {
+                                "id": "task-mcq-2",
+                                "type": "multiple-choice",
+                                "prompt": "Manakah yang bukan merupakan bahasa pemrograman tingkat tinggi?",
+                                "options": ["Python", "Java", "Assembly", "C++"],
+                                "correctAnswer": "Assembly"
+                            },
+                            {
+                                "id": "task-essay-1",
+                                "type": "essay",
+                                "prompt": "Menurut Anda, apa tantangan terbesar yang akan dihadapi oleh seseorang yang baru pertama kali belajar pemrograman? Jelaskan alasan Anda."
+                            }
+                        ]
+                    },
+                    { 
+                        "title": "Instalasi Alat", 
+                        "subtitle": "Menyiapkan Lingkungan Kerja",
+                        "content": "Panduan langkah demi langkah untuk menginstal semua perangkat lunak yang Anda butuhkan, seperti editor kode dan compiler.",
+                        "hasCompiler": false
+                        
+                    }
+                ]
+            },
+            {
+                "moduleTitle": "Dasar-dasar Python",
+                "lessons": [
+                    { 
+                        "title": "Variabel dan Tipe Data", 
+                        "subtitle": "Menyimpan dan Mengelola Informasi", 
+                        "content": "Belajar cara menyimpan data dalam variabel dan memahami tipe data fundamental seperti string, integer, dan float.", 
+                        "tasks": [
+                             {
+                                "id": "task-mcq-3",
+                                "type": "multiple-choice",
+                                "prompt": "Tipe data untuk 'Hello World' adalah...",
+                                "options": ["int", "float", "str", "bool"],
+                                "correctAnswer": "str"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "frontend-expert",
+        "title": "Menjadi Front-End Web Developer Expert",
+        "description": "Belajar membuat website yang responsif dan interaktif dengan teknologi terkini seperti React dan Vue.",
+        "icon": "FaLaptopCode",
+        "color": "#10b981",
+        "available": false,
+        "modules": []
+    },
+    {
+        "id": "aws-cloud",
+        "title": "Cloud Practitioner Essentials (Belajar Dasar AWS Cloud)",
+        "description": "Pahami konsep dasar cloud computing dan layanan-layanan utama dari Amazon Web Services.",
+        "icon": "FaAws",
+        "color": "#f59e0b",
+        "available": false,
+        "modules": []
+    }
+]

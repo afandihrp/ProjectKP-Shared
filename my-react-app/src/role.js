@@ -4,14 +4,11 @@
  */
 const roles = Object.freeze({
   admin: [
+    'edit:user',
     'create:course',
     'read:course',
     'update:course',
     'delete:course',
-    'create:user',
-    'read:user',
-    'update:user',
-    'delete:user',
   ],
   student: [
     'read:course'

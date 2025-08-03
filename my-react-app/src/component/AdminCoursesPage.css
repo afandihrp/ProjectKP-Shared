@@ -142,3 +142,44 @@
 .modal-actions .btn-submit:hover {
     background-color: #1d4ed8; /* blue-700 */
 }
+
+/* Styles untuk pemilih tipe tugas di dalam modal */
+.task-type-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.task-type-option {
+    padding: 1rem;
+    border: 2px solid #e2e8f0; /* gray-200 */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.task-type-option:hover {
+    border-color: #cbd5e1; /* gray-300 */
+    background-color: #f8fafc; /* gray-50 */
+}
+
+.task-type-option.selected {
+    border-color: #3b82f6; /* blue-500 */
+    background-color: #eff6ff; /* blue-50 */
+    box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.task-type-option h4 {
+    margin: 0 0 0.25rem 0;
+    color: #1e293b; /* gray-800 */
+    font-size: 1.1rem;
+}
+
+.task-type-option p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b; /* gray-500 */
+    line-height: 1.4;
+}

@@ -11,6 +11,11 @@ export default function PythonCompiler(props) {
     const [copied, setCopied] = useState(false);
     const {getToken,newRefreshToken} = useContext(tokenAPI);
 
+    if(props.code) {
+        setCode(props.code);
+    }
+
+
     const runCode = () => {
         setIsRunning(true);
         setOutput('');

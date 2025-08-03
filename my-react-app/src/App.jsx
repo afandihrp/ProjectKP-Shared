@@ -34,51 +34,62 @@ async function getUserInfo(token){
     }
     // console.log(data);
     return data; 
-  }
-  catch(err){
-    console.log("error getInfo: " + err);
+  }
+  catch(err){
+    console.log("error getInfo: " + err);
     cookie.remove('refreshToken');
     cookie.remove('token');
-    return null; 
-  }
+    return null; 
+  }
 }
 
-
-async function newRefreshToken(){
-  try{
-    const token = cookie.get('refreshToken');
-    const res = await fetch('http://147.185.221.30:24588/login/refresh',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`  
-      }
-    });
-    const data = await res.json();
-    if(!res.ok)
-    {
-      console.log('failed to fetch data');
-    }
-    cookie.set('token', data.token);
-//     console.log(`new `+data.token);    
-    return data;   
-  }
-  catch(err){
-    console.log("error: " + err);    
-  }
+/**
+ * 
+ * @returns object token by .token
+ */
+async function newRefreshToken()
+{
+  try{
+    const token = cookie.get('refreshToken');
+    const res = await fetch('http://147.185.221.30:24588/login/refresh',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`  
+      }
+    });
+    const data = await res.json();
+    if(!res.ok)
+    {
+      console.log('failed to fetch data');
+    }
+    cookie.set('token', data.token); 
+    return data;   
+  }
+  catch(err){
+    console.log("error: " + err);   
+    cookie.remove('refreshToken');
+    cookie.remove('token');
+    return null;  
+  }
 }
 
+/**
+ * 
+ * @returns token
+ */
 function getToken()
 {
-  const token = cookie.get('token');
-  const refreshToken = cookie.get('refreshToken');
-  return {token, refreshToken};
+  const token = cookie.get('token');
+  const refreshToken = cookie.get('refreshToken');
+  return {token, refreshToken};
 }
 
 // You must wrap the component logic in another component because hooks
 // like useNavigate can only be called inside a component that is a
 // descendant of <BrowserRouter>.
 function AppContent() {
+  const [id, setId] = useState('');
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('0');
   const [profileImage, setProfileImage] = useState('');
@@ -111,6 +122,8 @@ function AppContent() {
         getUserInfo(data.token).then((datauser) => {
           if(!datauser) return logout();
           if (datauser && datauser[0]) {
+            
+            setId(datauser[0].id);
             setName(datauser[0].name);
             setPhoneNumber(datauser[0].phonenumber);
             setProfileImage(datauser[0].profilepic || '');
@@ -130,6 +143,7 @@ function AppContent() {
           
           
       });
+      
     }
   },[authenticated])
 
@@ -137,7 +151,7 @@ function AppContent() {
   
   return (
     <tokenAPI.Provider value={{ getToken, newRefreshToken }}>
-      <userInfo.Provider value={{name,phoneNumber,profileImage,role}}>      
+      <userInfo.Provider value={{id,name,phoneNumber,profileImage,role}}>  
         <Routes>
           <Route path="/" element={<Landingpage />} />
           <Route path="/login" element={<LoginPage setAuthenticated={setAuthenticated} />} />

@@ -100,3 +100,44 @@
 .course-card-item.unavailable .course-card-footer {
     color: #9ca3af;
 }
+
+/* Admin actions on course card */
+.admin-card-actions {
+    display: flex;
+    gap: 0.75rem; /* Jarak antar tombol */
+}
+
+.admin-action-btn {
+    background-color: transparent;
+    border: 1px solid transparent; /* Cadangkan ruang untuk border saat hover agar layout tidak bergeser */
+    cursor: pointer;
+    font-size: 1rem; /* Ukuran ikon */
+    padding: 0.5rem; /* Area klik sedikit lebih besar */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out; /* Transisi halus untuk semua properti */
+}
+
+.admin-action-btn.edit-btn {
+    color: #f59e0b; /* amber-500 */
+}
+.admin-action-btn.edit-btn:hover {
+    background-color: #fffbeb; /* amber-50 */
+    color: #d97706; /* amber-600, warna ikon lebih gelap saat hover */
+    border-color: #fde68a; /* amber-200, border halus */
+    transform: translateY(-2px) scale(1.05); /* Efek mengangkat dan memperbesar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.07); /* Bayangan lembut */
+}
+
+.admin-action-btn.delete-btn {
+    color: #ef4444; /* red-500 */
+}
+.admin-action-btn.delete-btn:hover {
+    background-color: #fef2f2; /* red-50 */
+    color: #dc2626; /* red-600, warna ikon lebih gelap saat hover */
+    border-color: #fecaca; /* red-200, border halus */
+    transform: translateY(-2px) scale(1.05); /* Efek mengangkat dan memperbesar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.07); /* Bayangan lembut */
+}

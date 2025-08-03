@@ -1,4 +1,9 @@
-import React from 'react';
+import React,{useContext,useEffect,useState} from 'react';
+// import { useNavigate } from 'react-router-dom';
+import dataFetch from '../handleFetching.js';
+import {tokenAPI} from '../App.jsx';
+
+import Icons from './Icons.jsx'
 import { 
   FaBook, 
   FaChartLine, 
@@ -14,28 +19,33 @@ import {
   FaCode
 } from 'react-icons/fa';
 import './Frontpage.css';
+import {userInfo} from '../App.jsx';
 
-const Frontpage = ({ name = "Student", marginleft = 0 }) => {
-  // Quick Stats Data
-  const quickStats = [
+function getFrontData(id,token){
+  const data = new dataFetch(`/frontpage/${id}`,null,token,`GET`);
+  return data.makeRequest();
+}
+
+const quickStatsDefault = 
+[
     {
       icon: FaBook,
       title: "Active Courses",
-      value: "5",
-      subtitle: "2 due this week",
+      value: "0",
+      subtitle: "",
       color: "#3b82f6"
     },
     {
       icon: FaChartLine,
       title: "Progress",
-      value: "78%",
+      value: "0%",
       subtitle: "Overall completion",
       color: "#10b981"
     },
     {
       icon: FaClock,
       title: "Study Time",
-      value: "24h",
+      value: "0h",
       subtitle: "This month",
       color: "#f59e0b"
     },
@@ -46,16 +56,16 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
     //   subtitle: "Earned",
     //   color: "#8b5cf6"
     // }
-  ];
+];
 
-  // Continue Learning Data
-  const continueLearnig = [
+  const continueLearnigDefault = 
+  [
     {
-      title: "Python for Beginners",
+      title: "Bla bla...",
       subtitle: "Master the fundamentals",
       progress: 65,
       duration: "2h 30m left",
-      icon: FaCode,
+      icon: "FaCode",
       color: "#3b82f6"
     },
     // {
@@ -66,24 +76,24 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
     //   icon: FaLightbulb,
     //   color: "#10b981"
     // },
-    {
-      title: "Data Structures",
-      subtitle: "Algorithm fundamentals",
-      progress: 85,
-      duration: "45m left",
-      icon: FaGraduationCap,
-      color: "#f59e0b"
-    }
+    // {
+    //   title: "Data Structures",
+    //   subtitle: "Algorithm fundamentals",
+    //   progress: 85,
+    //   duration: "45m left",
+    //   icon: FaGraduationCap,
+    //   color: "#f59e0b"
+    // }
   ];
 
-  // Recent Activity Data
-  const recentActivity = [
+  const recentActivity = 
+  [
     {
       type: "completion",
       title: "Completed 'Variables and Data Types'",
       course: "Python for Beginners",
       time: "2 hours ago",
-      icon: FaAward,
+      icon: "FaAward",
       color: "#10b981"
     },
     // {
@@ -102,28 +112,125 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
     //   icon: FaUsers,
     //   color: "#f59e0b"
     // }
-  ];
+];
+
+
+
+
+
+const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
+  const {id,name,phoneNumber,profileImage,role} = useContext(userInfo);
+  const {getToken, newRefreshToken} = useContext(tokenAPI);
+
+  const [quickStats, setQuickStats] = useState(quickStatsDefault);
+  const [continueLearnig, setContinueLearning] = useState(``);
+  const [recentActivity, setRecentActivity] = useState(``);
+
+  const changeMenu = () => {
+    // e.preventDefault;
+    console.log(`hi`);
+    selectMenu('My Courses');
+  };
+
+
+  const handleRecentActivity = (data) => {
+    // console.log(data);
+    if(data != null){
+      setRecentActivity(data)
+    };
+  };
+
+  const handleContinueLearning = (data) => {
+    // console.log(data);
+    if(data != null){
+      setContinueLearning(data)
+    };
+  };
+    
+
+  useEffect(() => {
+    if(id){
+      newRefreshToken().then(async (response)=>{
+        const dataResponse = await getFrontData(id,response.token);
+        console.log(JSON.stringify(dataResponse.data.message));
+        
+        // console.log(JSON.stringify(dataResponse.data.message.continuelearnig));
+        // const CLdata = dataResponse.data.message.continuelearnig;
+        // console.log(continueLearnig != ``);
+        handleContinueLearning(dataResponse.data.message.continuelearnig);
+  
+        // if(Object.keys(dataResponse.data.message.continuelearnig).length !== 0){
+        //   console.log(CLdata);
+        //   setContinueLearning(CLdata);
+        // }
+
+        handleRecentActivity(dataResponse.data.message.recentactivity);
+
+        
+
+        if(dataResponse.data)
+        {
+          const recievedData = dataResponse.data.message.quickstats;
+
+          const newQuickStats = quickStatsDefault.map((stat, index) => {
+            // console.log(stat.title)
+            const foundtittle = recievedData.find((data)=>{
+              // console.log(data.title+`==`+stat.title)
+              return data.title === stat.title;
+            })
+            // console.log(`found: ${foundtittle.title}`)
+            
+            if(foundtittle){
+              return{
+                ...stat,
+                value: foundtittle.value
+              }
+            }
+            else
+            {
+              return stat;
+            }
+            
+          })
+          // console.log(`newfrontvalue: ${JSON.stringify(newQuickStats)}}`)
+          setQuickStats(newQuickStats);
+        }
+
+      })
+    }
+
+  },[id])
+
+
+
+  // Quick Stats Data
+  
+  // Continue Learning Data
+
+
+  // Recent Activity Data
+
 
   // Upcoming Deadlines
   const upcomingDeadlines = [
-    {
-      title: "Python Final Project",
-      course: "Python for Beginners",
-      dueDate: "Tomorrow",
-      priority: "high"
-    },
-    {
-      title: "React Component Assignment",
-      course: "React Development",
-      dueDate: "Nov 20",
-      priority: "medium"
-    },
-    {
-      title: "Algorithm Quiz",
-      course: "Data Structures",
-      dueDate: "Nov 25",
-      priority: "low"
-    }
+    // {
+    //   title: "Python Final Project",
+    //   course: "Python for Beginners",
+    //   dueDate: "Tomorrow",
+    //   priority: "high"
+    // },
+    // {
+    //   title: "React Component Assignment",
+    //   course: "React Development",
+    //   dueDate: "Nov 20",
+    //   priority: "medium"
+    // },
+    // {
+    //   title: "Algorithm Quiz",
+    //   course: "Data Structures",
+    //   dueDate: "Nov 25",
+    //   priority: "low"
+    // }
   ];
 
   const getTimeOfDay = () => {
@@ -139,7 +246,7 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
         {/* Header Section */}
         <div className="header-section">
           <div className="greeting">
-            <h1>{getTimeOfDay()}, {name}!</h1>
+            <h1>{getTimeOfDay()}, {name+id}!</h1>
             <p>Ready to continue your learning journey?</p>
           </div>
           <div className="date-info">
@@ -175,35 +282,39 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
           <div className="content-section">
             <div className="section-header">
               <h2>Continue Learning</h2>
-              <button className="see-all-btn">
+              <button className="see-all-btn" onClick={changeMenu}>
                 See All <FaArrowRight />
               </button>
             </div>
             <div className="courses-list">
-              {continueLearnig.map((course, index) => (
-                <div key={index} className="course-card">
-                  <div className="course-icon" style={{ backgroundColor: course.color }}>
-                    <course.icon />
-                  </div>
-                  <div className="course-info">
-                    <h3>{course.title}</h3>
-                    <p>{course.subtitle}</p>
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ width: `${course.progress}%`, backgroundColor: course.color }}
-                      ></div>
+              {Object.keys(continueLearnig).length !== 0 ?(
+                continueLearnig.map((course, index) => (
+                  <div key={index} className="course-card">
+                    <div className="course-icon" style={{ backgroundColor: course.color }}>
+                      <Icons icon={course.icon} />
                     </div>
-                    <div className="course-meta">
-                      <span>{course.progress}% complete</span>
-                      <span>{course.duration}</span>
+                    <div className="course-info">
+                      <h3>{course.title}</h3>
+                      <p>{course.subtitle}</p>
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${course.progress}%`, backgroundColor: course.color }}
+                        ></div>
+                      </div>
+                      <div className="course-meta">
+                        <span>{course.progress}% complete</span>
+                        <span>{course.duration}</span>
+                      </div>
                     </div>
+                    <button className="continue-btn">
+                      <FaPlay />
+                    </button>
                   </div>
-                  <button className="continue-btn">
-                    <FaPlay />
-                  </button>
-                </div>
-              ))}
+                )))
+                :
+                (<h3 onClick={changeMenu}>Click see all to view courses...</h3>)
+              }
             </div>
           </div>
 
@@ -213,10 +324,11 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
               <h2>Recent Activity</h2>
             </div>
             <div className="activity-list">
-              {recentActivity.map((activity, index) => (
+              {Object.keys(recentActivity).length !== 0 ?(
+                recentActivity.map((activity, index) => (
                 <div key={index} className="activity-item">
                   <div className="activity-icon" style={{ backgroundColor: activity.color }}>
-                    <activity.icon />
+                    <Icons icon={activity.icon}/>
                   </div>
                   <div className="activity-content">
                     <h4>{activity.title}</h4>
@@ -224,12 +336,13 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
                     <span className="activity-time">{activity.time}</span>
                   </div>
                 </div>
-              ))}
+                ))
+              ):(<h3>Nothing to see here....</h3>)}
             </div>
           </div>
 
           {/* Upcoming Deadlines */}
-          <div className="content-section">
+          {/* <div className="content-section">
             <div className="section-header">
               <h2>Upcoming Deadlines</h2>
             </div>
@@ -247,7 +360,7 @@ const Frontpage = ({ name = "Student", marginleft = 0 }) => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Achievements */}
             {/* <div className="content-section">

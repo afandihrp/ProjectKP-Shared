@@ -7,8 +7,8 @@ import CourseListItem from './component/CourseListItem.jsx';
 import Profile from './component/Profile.jsx';
 import PythonCompiler from './component/PythonCompiler.jsx';
 import MyCoursesPage from './component/MyCoursesPage.jsx';
-import AdminCoursesPage from './component/AdminCoursesPage.jsx';
 import AddUser from './component/AddUser.jsx';
+import Leaderboard from './component/Leaderboard.jsx';
 
 
 
@@ -21,7 +21,8 @@ function Dashboard(props)
     const [marginsize, setMarginsize] = useState(280);
     const [menuSelected, selectMenu] = useState('Dashboard')
     const name = props.name;
-
+    // Buat objek user yang akan diteruskan ke komponen anak
+    const user = { usrRole: props.role };
 
     
     function handleselected_menu(current_menu)
@@ -57,8 +58,9 @@ function Dashboard(props)
                 {sidebar()}
         
                 <Frontpage
-                name={props.name}
-                marginleft={marginsize}                
+                marginleft={marginsize}
+                selectMenu={selectMenu}
+                
                 />
 
             </>);
@@ -67,6 +69,7 @@ function Dashboard(props)
                 {sidebar()}
                 <MyCoursesPage
                 marginleft={marginsize}
+                user={user}
                 />
             </>);
         
@@ -98,6 +101,15 @@ function Dashboard(props)
                 />
 
             </>);
+        case 'Leaderboard':
+            return(
+                <>
+                    {sidebar()}
+                    <Leaderboard
+                    marginleft={marginsize} 
+                    />
+                </>
+            );
     }
         
 }

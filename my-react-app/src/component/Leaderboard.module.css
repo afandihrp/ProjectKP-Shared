@@ -1,0 +1,178 @@
+/* Leaderboard.module.css
+  All styles, including variables, are now scoped to the component.
+*/
+
+.lmsLeaderboardBody {
+    /* CSS variables are now scoped to this component */
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --primary-color: #3b82f6;
+    --green-color: #10b981;
+    --purple-color: #8b5cf6;
+    --progress-bar-bg: #e2e8f0;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(99, 102, 241, 0.1);
+    --gold-color: #ffa200;
+    --silver-color: #a8a29e;
+    --bronze-color: #a67e05;
+    --card-bg-color: #ffffff;
+    
+    /* Base styles for the component's container */
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f4f8;
+    color: var(--text-primary);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.leaderboardContainer {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--card-bg-color);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    overflow: hidden;
+}
+
+.leaderboardHeader {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.leaderboardHeader h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.leaderboardHeader p {
+    margin: 0.25rem 0 0;
+    color: var(--text-secondary);
+}
+
+.studentList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.studentItem {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+}
+
+.studentItem:last-child {
+    border-bottom: none;
+}
+
+.studentItem:hover {
+    background-color: #f8fafc;
+}
+
+.studentRank {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    padding-top: 0.25rem;
+}
+
+.studentInfo {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.studentProfile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.studentProfile img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.studentProfile .name {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.coursesProgress {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.courseProgressItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.courseProgressItem .courseName {
+    min-width: 140px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.progressBarContainer {
+    flex-grow: 1;
+    background-color: var(--progress-bar-bg);
+    border-radius: 8px;
+    height: 20px;
+}
+
+.progressBarFill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s ease-in-out;
+    text-align: right;
+    padding-right: 8px;
+    box-sizing: border-box;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 20px;
+}
+
+.totalPoints {
+    text-align: center;
+    min-width: 110px;
+}
+
+.totalPoints .pointsValue {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.totalPoints .pointsLabel {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .lmsLeaderboardBody {
+        padding: 1rem;
+    }
+    .studentItem {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .totalPoints {
+        align-self: flex-end;
+    }
+}

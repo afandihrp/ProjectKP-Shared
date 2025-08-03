@@ -9,12 +9,12 @@ export default defineConfig({
     port: 5173,
     https: false,
     allowedHosts: ['localhost','thing-fountain.gl.at.ply.gg', '127.0.0.1'],
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    // proxy: {
+    //   '/': {
+    //     target: 'environment-relief.gl.at.ply.gg:24588',
+    //     changeOrigin: true,
+    //     secure: false,
+    //   },
+    // },
   },
 })
