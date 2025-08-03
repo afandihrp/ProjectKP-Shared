@@ -1,7 +1,7 @@
 import React,{useContext,useEffect,useState} from 'react';
 // import { useNavigate } from 'react-router-dom';
 import dataFetch from '../handleFetching.js';
-import {tokenAPI} from '../App.jsx';
+
 
 import Icons from './Icons.jsx'
 import { 
@@ -21,9 +21,9 @@ import {
 import './Frontpage.css';
 import {userInfo} from '../App.jsx';
 
-function getFrontData(id,token){
-  const data = new dataFetch(`/frontpage/${id}`,null,token,`GET`);
-  return data.makeRequest();
+async function getFrontData(id){
+  const data = new dataFetch(`/frontpage/${id}`,null,`GET`);
+  return await data.makeRequest();
 }
 
 const quickStatsDefault = 
@@ -120,7 +120,6 @@ const quickStatsDefault =
 
 const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
   const {id,name,phoneNumber,profileImage,role} = useContext(userInfo);
-  const {getToken, newRefreshToken} = useContext(tokenAPI);
 
   const [quickStats, setQuickStats] = useState(quickStatsDefault);
   const [continueLearnig, setContinueLearning] = useState(``);
@@ -150,13 +149,10 @@ const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
 
   useEffect(() => {
     if(id){
-      newRefreshToken().then(async (response)=>{
-        const dataResponse = await getFrontData(id,response.token);
+      Promise.resolve().then(async ()=>{
+        const dataResponse = await getFrontData(id);
         console.log(JSON.stringify(dataResponse.data.message));
         
-        // console.log(JSON.stringify(dataResponse.data.message.continuelearnig));
-        // const CLdata = dataResponse.data.message.continuelearnig;
-        // console.log(continueLearnig != ``);
         handleContinueLearning(dataResponse.data.message.continuelearnig);
   
         // if(Object.keys(dataResponse.data.message.continuelearnig).length !== 0){

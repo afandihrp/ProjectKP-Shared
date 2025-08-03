@@ -4,7 +4,7 @@ import { CgChevronDown, CgChevronUp } from "react-icons/cg";
 import { FaArrowLeft, FaCheckCircle, FaLock, FaPlayCircle, FaChevronLeft, FaChevronRight, FaCheck, FaTimes } from 'react-icons/fa';
 import PythonCompiler from './PythonCompiler.jsx';
 import dataFetch from '../handleFetching.js';
-import { tokenAPI } from '../App.jsx';
+
 
 export default function CourseListItem({ course, marginleft, onBackToCourseList }) {
   const [currentView, setCurrentView] = useState('list'); // 'list' or 'lesson'
@@ -16,7 +16,7 @@ export default function CourseListItem({ course, marginleft, onBackToCourseList 
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
   const [taskAnswers, setTaskAnswers] = useState({});
   const [checkedAnswers, setCheckedAnswers] = useState({}); // { taskId: { status: 'correct' | 'incorrect', selected: 'userAnswer' } }
-  const { getToken, newRefreshToken } = useContext(tokenAPI);
+
 
   // Create a flat array of all lessons for easier navigation and progress tracking
   const allLessons = useMemo(() => (course.modules || []).flatMap(m => m.lessons), [course.modules]);
@@ -38,12 +38,7 @@ export default function CourseListItem({ course, marginleft, onBackToCourseList 
     }
     return null; // This is the last lesson
   };
-newRefreshToken().then(() => {
-  const test = new dataFetch("/course", null, getToken().token, "GET");
-  const data = test.makeRequest()
-  console.log(data);
-}
-)
+
 
 
   const handleLessonClick = (lesson) => {

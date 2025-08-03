@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Play, RotateCcw, Copy, Check } from 'lucide-react';
-import { tokenAPI } from '../App.jsx';
 import './PythonCompiler.css';
+import dataFetch from '../handleFetching';
 
 export default function PythonCompiler(props) {
     const [code, setCode] = useState(`# Write your Python code here\nprint("Hello, World!")`);
@@ -9,51 +9,66 @@ export default function PythonCompiler(props) {
     const [output, setOutput] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const [copied, setCopied] = useState(false);
-    const {getToken,newRefreshToken} = useContext(tokenAPI);
+
 
     if(props.code) {
-        setCode(props.code);
+        setOutput(`Error from server: ${res.status}\n${errorText}`);
     }
 
 
-    const runCode = () => {
+    const runCode = async () => {
         setIsRunning(true);
         setOutput('');
         
         
-        try {
-            newRefreshToken().then(async ()=>{
-                console.log(`new token: ${getToken().token}`);
-                const res = await fetch('http://147.185.221.30:24588/execPython', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getToken().token}`  // Use the token from context
-                    },
-                    body: JSON.stringify({
-                        code: code
-                    })
-                });
+        try 
+        {
+            const body ={
+                code: code
+            }
+            const payload = new dataFetch('/execPython',body,'POST');
+            const response = await payload.makeRequest();
+            let result;
+            if(!response.err)
+            {
+                result = response.data;
+            }  
+            else
+            {
+                setOutput(`Error from server: ${response.data.status}\n`);
+            }
+            
+            // console.log(`new token: ${getToken().token}`);
+            // const res = await fetch('http://147.185.221.30:24588/execPython', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${getToken().token}`  // Use the token from context
+            //     },
+            //     body: JSON.stringify({
+            //         code: code
+            //     })
+            // });
 
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    setOutput(`Error from server: ${res.status}\n${errorText}`);
-                    return;
-                }
+            // if (!res.ok) {
+            //     const errorText = await res.text();
+            //     setOutput(`Error from server: ${res.status}\n${errorText}`);
+            //     return;
+            // }
 
-                const result = await res.json();
-                let finalOutput = "";
+            // const result = await res.json();
+            let finalOutput = "";
 
-                if (result.Output) {
-                    finalOutput += result.Output;
-                }
-                if (result.Error) {
-                    // Append error to the output, clearly marking it as an error.
-                    finalOutput += (finalOutput ? '\n' : '') + `--- ERROR ---\n${result.Error}`;
-                }
+            if (result.Output) {
+                finalOutput += result.Output;
+            }
+            if (result.Error) {
+                // Append error to the output, clearly marking it as an error.
+                finalOutput += (finalOutput ? '\n' : '') + `--- ERROR ---\n${result.Error}`;
+            }
 
-                setOutput(finalOutput || 'Execution finished with no output.');
-            })
+            setOutput(finalOutput || 'Execution finished with no output.');
+
             
         } catch (err) {
             console.error('Failed to execute code:', err);

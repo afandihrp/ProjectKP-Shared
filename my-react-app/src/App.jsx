@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext } from "react";
 // 👇 1. Import useNavigate
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, data } from 'react-router-dom';
 import LoginPage from './Loginpage';
 import Landingpage from './Landingpage';
 import Test from './Test';
@@ -9,70 +9,52 @@ import './App.css';
 import cookie from 'js-cookie';
 import { string } from "prop-types";
 import { Info } from "lucide-react";
-
+import dataFetch from "./handleFetching";
 export const tokenAPI = createContext();
 export const userInfo = createContext();
 
 // ... (your getUserInfo, newRefreshToken, getToken functions remain the same)
+function Loading(){
+  return(
+    <h1>Loading...</h1>
+  )
+}
 
-async function getUserInfo(token){
-  try{
-    const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/users',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`  
-     }
-    });
-    const data = await res.json();
-    if(!res.ok)
-    {
-      console.log('failed to fetch data');
-      cookie.remove('refreshToken');
-      cookie.remove('token');
-      return null;
-    }
-    // console.log(data);
-    return data; 
+async function getUserInfo(){
+  const user = new dataFetch("/users",null,'POST');
+  const response =await user.makeRequest();
+  if(!response.err)
+  {
+    return response.data&&response.data;
   }
-  catch(err){
-    console.log("error getInfo: " + err);
-    cookie.remove('refreshToken');
-    cookie.remove('token');
-    return null; 
+  else
+  {
+    return null;
   }
 }
 
-/**
- * 
- * @returns object token by .token
- */
-async function newRefreshToken()
-{
-  try{
-    const token = cookie.get('refreshToken');
-    const res = await fetch('http://147.185.221.30:24588/login/refresh',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`  
-      }
-    });
-    const data = await res.json();
-    if(!res.ok)
-    {
-      console.log('failed to fetch data');
-    }
-    cookie.set('token', data.token); 
-    return data;   
-  }
-  catch(err){
-    console.log("error: " + err);   
-    cookie.remove('refreshToken');
-    cookie.remove('token');
-    return null;  
-  }
-}
+// /**
+//  * 
+//  * @returns object token by .token
+//  */
+// async function newRefreshToken()
+// {
+//   // const token = cookie.get('refreshToken');
+//   const payload = new dataFetch('/login/refresh',null,'GET')
+//   const response = await payload.makeRequest();
+//   if(!response.err)
+//   {
+//     cookie.set('token',response.data.token);    
+//     // console.log(response.data);
+//     return response.data;
+//   }
+//   else
+//   {
+//     cookie.remove('refreshToken');
+//     cookie.remove('token');
+//     return null;
+//   }
+// }
 
 /**
  * 
@@ -97,7 +79,9 @@ function AppContent() {
   const [authenticated, setAuthenticated] = useState(false);
   const navigate = useNavigate(); // <-- 2. Initialize navigate
 
-  function logout() {
+  async function logout() {
+    const logOut = new dataFetch('/login/logout',null,'GET');
+    await logOut.makeRequest();
     Promise.resolve().then(()=>{
       cookie.remove('refreshToken');
       cookie.remove('token');            
@@ -109,71 +93,97 @@ function AppContent() {
 
 
   useEffect(() => {
-    const token = cookie.get('refreshToken');
-    if (!token) 
-    {
-      return logout();
-    } 
-    else 
-    {
-      setAuthenticated(true);
-      newRefreshToken(token).then((data) => {
-        cookie.set('token', data.token);
-        getUserInfo(data.token).then((datauser) => {
-          if(!datauser) return logout();
-          if (datauser && datauser[0]) {
-            
-            setId(datauser[0].id);
-            setName(datauser[0].name);
-            setPhoneNumber(datauser[0].phonenumber);
-            setProfileImage(datauser[0].profilepic || '');
-            setRole(datauser[0].role);
-            
-          }
-        });
-      }).catch((err) => {
-        Promise.resolve().then(()=>{
-          cookie.remove('refreshToken');
-          cookie.remove('token');            
-          setAuthenticated(false); 
-                      
-        }).then(()=>{
-          navigate('/login');
-        })
-          
-          
-      });
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Request timed out after 5 seconds'));
+      }, 5000); // 5000 milliseconds = 5 seconds
+    });
+
+      Promise.race([
+        getUserInfo(), // This is your actual API call promise
+        timeoutPromise  // This is the timeout promise
+      ]).then((datauser) => {
+      if(datauser != null)
+      {
+        console.log(datauser);
+        setId(datauser[0].id);
+        setName(datauser[0].name);
+        setPhoneNumber(datauser[0].phonenumber);
+        setProfileImage(datauser[0].profilepic || '');
+        setRole(datauser[0].role);
+        setAuthenticated(true);
+      }
       
-    }
+    }).catch(error => {
+      // This block runs if the timeout happens first, OR if getUserInfo() itself fails
+      console.error("Operation failed:", error.message);
+      setAuthenticated(false);
+      navigate('/login');
+    });
+
+    // const token = cookie.get('refreshToken');
+    // if (!token) 
+    // {
+    //   return logout();
+    // } 
+    // else 
+    // {
+    //   setAuthenticated(true);
+    //   newRefreshToken(token).then((data) => {
+    //     cookie.set('token', data.token);
+    //     getUserInfo().then((datauser) => {
+    //       if(!datauser) return logout();
+    //       if (datauser && datauser[0]) {
+            
+    //         setId(datauser[0].id);
+    //         setName(datauser[0].name);
+    //         setPhoneNumber(datauser[0].phonenumber);
+    //         setProfileImage(datauser[0].profilepic || '');
+    //         setRole(datauser[0].role);
+            
+    //       }
+    //     });
+    //   }).catch((err) => {
+    //     Promise.resolve().then(()=>{
+    //       cookie.remove('refreshToken');
+    //       cookie.remove('token');            
+    //       setAuthenticated(false); 
+                      
+    //     }).then(()=>{
+    //       navigate('/login');
+    //     })
+          
+          
+    //   });
+      
+    // }
   },[authenticated])
 
 
   
   return (
-    <tokenAPI.Provider value={{ getToken, newRefreshToken }}>
-      <userInfo.Provider value={{id,name,phoneNumber,profileImage,role}}>  
+       <userInfo.Provider value={{id,name,phoneNumber,profileImage,role}}>  
         <Routes>
           <Route path="/" element={<Landingpage />} />
           <Route path="/login" element={<LoginPage setAuthenticated={setAuthenticated} />} />
-          {authenticated ? (
-            <Route
+          <Route
               path="/Dashboard"
-              element={
-                <Dashboard
+              element={authenticated?(<Dashboard
                   name={name}
                   profilePic={profileImage}
                   phoneNumber={phoneNumber}
                   role={role}
                   logout={logout}
                   setAuthenticated={setAuthenticated}
-                />
+                  />
+                ):(
+                  <Loading />
+                )
               }
             />
-          ) : (<Route path="/Dashboard" element={<Test authenticated={authenticated} />} />)
-          }
+          <Route path="*" element={<Test authenticated={authenticated} />} />
         </Routes>
       </userInfo.Provider>
-    </tokenAPI.Provider>    
   );
 }
 

@@ -20,10 +20,24 @@ const SECRET_REFRESH_KEY= '48fec683db5cdb61f859f94b123b390340ad4680b000ed96fa92c
 
 let refreshTokens = []
 
+app.use((req, res, next) => {
+    console.log(`\n\n//========NEW REQUEST==============================================================//=>`);
+    console.log(`URL: ${req.url}`);
+    const cookies = req.headers.cookie&&req.headers.cookie.split(';');
+    console.log(`Cookies: ${JSON.stringify(cookies)}`);
+    console.log(`Body: ${JSON.stringify(req.body)}`);
+    console.log(`//=================================================================================//=>\n`);
+    next();
+});
+
+//==============================================================//=>
+
 function generateToken(user)
 {
     return jwt.sign(user, SECRET_KEY, {expiresIn: '10s'});    
 }
+
+//==============================================================//=>
 
 function generateRefreshToken(user)
 {
@@ -32,12 +46,13 @@ function generateRefreshToken(user)
     return token;
 }
 
+//==============================================================//=>
+
 function verifyToken(req,res,next)
 {
-    // const tokenR = req.cookies.tokenTest;
-    // console.log(`httpCookieToken: ${tokenR}`);
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-    if(!token) app.status(401).send('Unauthorized');
+    // const token = req.headers.authorization && req.headers.authorization.split(' ')[1];'
+    const token = req.cookies.token&&req.cookies.token || req.headers.authorization && req.headers.authorization.split(' ')[1];
+    if(!token) return res.status(401).send('Unauthorized');
     jwt.verify(token,SECRET_KEY,(err, user) => {
         if(err) return res.status(403).send(`Forbidden: ${err}`);
         req.user = user;
@@ -46,14 +61,19 @@ function verifyToken(req,res,next)
     
 }
 
+//==============================================================//=>
+//=> verify the refresh token
+//==============================================================//=>
+
 function verifyRefreshToken(req,res,next)
 {
-    // const tokenR = req.cookies.refreshTokenTest;
-    // console.log(`httpCookieRefreshToken: ${tokenR}`);
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-    if(!refreshTokens.includes(token) || !token) return res.status(403).send('Forbidden: Invalid refresh token');
-    // return res.status(401).send('Unauthorized');
-    if(!token) app.status(401).send('Unauthorized');
+    
+    // console.log(`\n\nokeee\n\n`);
+
+    // const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+    console.log(`refreshToken: ${req.cookies.refreshToken}`)
+    const token = req.cookies.refreshToken&&req.cookies.refreshToken || req.headers.authorization && req.headers.authorization.split(' ')[1];
+    if(!refreshTokens.includes(token) || !token){ console.log('Unauthorized: Invalid refresh token'); return res.status(401).send('Unauthorized: Invalid refresh token');    }
     jwt.verify(token,SECRET_REFRESH_KEY,(err, user) => {
         if(err) return res.status(403).send(`Forbidden: ${err}`);
         req.user = user;
@@ -62,13 +82,49 @@ function verifyRefreshToken(req,res,next)
     
 }
 
-   
+//==============================================================//=>
+//=> setcookie
+//==============================================================//=>
+    
+
+/**
+ * @param {object} response res obj
+ * @param {string} cookieValue cookie value in string.
+ * @param {string} cookieName cookie name in string.
+ * @param {number} cookieAge cookie age in seconds, when set to null then the age is infinite.
+ * @example -> setCookie( response , cookieValue , cookieName , cookieAge )
+ */
+function setCookie(res, cookieValue, cookieName, cookieAge)
+{  
+    if(!cookieValue || !cookieName) return false;
+
+    const option ={
+        httpOnly: true,
+        secure: false,
+        path: '/',
+    }
+
+    if(cookieAge != null)
+    {
+        option.maxAge = cookieAge * 1000;
+    }
+    res.cookie(cookieName, cookieValue, option);
+    return true;
+
+}
+
+//==============================================================//=>
+//=>                           require admin
+//==============================================================//=> 
 
 function requireAdmin(req,res,next){
     console.log(req.user.role);
     req.user.role === 'admin' ? next() : res.status(403).send('Forbidden');
 }
 
+//==============================================================//=>
+//=>                             /login/auth
+//==============================================================//=>
 
 app.post('/login/auth', async (req,res) => {
     const {email, password} = req.body;
@@ -89,8 +145,8 @@ app.post('/login/auth', async (req,res) => {
         }     
         const token = generateToken(user);
         const refreshToken = generateRefreshToken(user);
-        // res.cookie('tokenTest', 'apalah');
-        // res.cookie('refreshTokenTest', refreshToken,{httpOnly: true, secure: false,maxAge: 60 * 60 * 1000});
+        setCookie(res,token,'token',10);
+        setCookie(res,refreshToken,'refreshToken',null);
         res.status(200).send({"token": token, "refreshToken": refreshToken});
     }
     catch(err)
@@ -100,7 +156,12 @@ app.post('/login/auth', async (req,res) => {
     }
 });
 
-app.post('/login/refresh', verifyRefreshToken, (req,res) => {
+//==============================================================//=>
+//=> /login/refresh
+//==============================================================//=> 
+
+app.get('/login/refresh', verifyRefreshToken, (req,res) => {
+    // console.log(req.cookies.refreshToken);
     const user = {
         id: req.user.id,
         email: req.user.email,
@@ -108,14 +169,24 @@ app.post('/login/refresh', verifyRefreshToken, (req,res) => {
     }  
     const token = generateToken(user);
     console.log(`new token: ${token}`);
+    setCookie(res,token,'token',10);
     res.status(200).send({"token": token, "user": user});
 });
 
-app.post('/login/logout', (req,res) =>{
-    const refreshToken = req.headers.authorization && req.headers.authorization.split(' ')[1];
-    refreshTokens = refreshTokens.filter(token => token !== refreshToken);
-    res.send('Refresh token deleted '+ JSON.stringify(refreshTokens));
+//==============================================================//=>
+//=> logout
+//==============================================================//=>
+
+app.get('/login/logout', (req,res) =>{
+    console.log('ok');
+    res.clearCookie('token');
+    res.clearCookie('refreshToken');
+    res.send('Refresh token deleted ');
 });
+
+//==============================================================//=>
+//=>
+//==============================================================//=>
 
 app.get('/getEternalToken',(req,res) => {
     const user = {
@@ -130,27 +201,57 @@ app.get('/getEternalToken',(req,res) => {
     res.send({token, refreshToken});
 });
 
+
+
+//==============================================================//=>
+
 // anything below this comment requires authentication//
 app.use(verifyToken);
 // anything below this comment requires authentication//
 
+//==============================================================//=>
 
 
-app.get(`/testing`,(req,res) => {
-    console.log(`yes`);
-    res.status(200).send({message: "hi!"});
+app.get('/testing',(req,res)=>{
+    console.log('hellow');
+    // res.cookie('test', 'peler');
+    // setCookie(res, 'babik','test',100);
+    res.clearCookie('test');
+    res.status(200).send({message: `hi!`});
 })
+
+
+//==============================================================//=>
+//=> check if token expired and refresh it
+//==============================================================//=>
+
+app.use((req,res,next)=>
+{
+    const token = req.cookies.refreshToken&&req.cookies.refreshToken || req.headers.authorization && req.headers.authorization.split(' ')[1];
+    console.log(`refreshToken: ${token}`);
+    if(token != undefined)
+    {
+        // console.log(`\n\nokeee\n\n`);
+        return next();        
+    }
+    res.clearCookie('token');
+    res.clearCookie('refreshToken');
+    res.status(403).send('Forbidden, you are not logged in!');
+    
+});
+
+//==============================================================//=>
+//=> get front page data for that specific id
+//==============================================================//=>
 
 app.get('/frontpage/:id',async (req,res) => {
     const id = req.params.id;
-    const token = req.cookies.tokenTest;
-    console.log(token);  
-    console.log(id);
+    // console.log(id);
     try{
         const query=`SELECT * FROM frontpage WHERE user_id = $1`;                             
         const values = [id];
         const { rows, rowCount } = await db.query(query,values);
-        console.log(rows);
+        // console.log(rows);
         if (rowCount > 0) {
                        
             res.status(201).json({ 
@@ -527,9 +628,7 @@ app.post('/execPython', (req,res) => {
 
   }, 1000);  
 
-})
-
-
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

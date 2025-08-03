@@ -17,18 +17,26 @@ import Leaderboard from './component/Leaderboard.jsx';
 
 
 function Dashboard(props)
-{
-    const [marginsize, setMarginsize] = useState(280);
+{    
     const [menuSelected, selectMenu] = useState('Dashboard')
+    useEffect(() => {
+        if(sessionStorage.getItem('menuSelected') != null)
+        {
+        selectMenu(sessionStorage.getItem('menuSelected'));
+        }
+    },[])
+    const [marginsize, setMarginsize] = useState(280);
+
+    
     const name = props.name;
-    // Buat objek user yang akan diteruskan ke komponen anak
     const user = { usrRole: props.role };
 
     
     function handleselected_menu(current_menu)
     {
         selectMenu(current_menu);
-        // alert(current_menu, menuSelected);
+        sessionStorage.setItem('menuSelected',current_menu);
+
     }
 
     function handlesetMarginsize(value)
@@ -59,7 +67,7 @@ function Dashboard(props)
         
                 <Frontpage
                 marginleft={marginsize}
-                selectMenu={selectMenu}
+                selectMenu={handleselected_menu}
                 
                 />
 

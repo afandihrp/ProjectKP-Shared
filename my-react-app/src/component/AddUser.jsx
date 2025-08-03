@@ -1,5 +1,5 @@
 import style from './AddUser.module.css';
-import { tokenAPI } from '../App.jsx';
+
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import React, { useState, useContext, useEffect } from 'react';
 import dataFetch from '../handleFetching.js'
@@ -7,8 +7,6 @@ import { data } from 'react-router-dom';
 
 
 export default function AddUser(props) {
-    const { getToken, newRefreshToken } = useContext(tokenAPI);
-
     // State for the input form fields
     const [id, setId] = useState('')
     const [email, setEmail] = useState('');
@@ -18,28 +16,21 @@ export default function AddUser(props) {
     const [role, setRole] = useState('student');
     const [mode, setMode] = useState('add');
     const [error, setError] = useState('');
+    const [isDataReady, setIsDataReady] = useState(false);
+
 
 
     // State for the table data
     const [userdata, setUserdata] = useState([]);
 
-    const refreshData = () => {
-        newRefreshToken().then(async () => {
-            try {
-                const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/get/userData', {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `BEARER ${getToken().token}`
-                    }
-                });
-                const response = await res.json();
-                setUserdata(response);
-            } catch (err) {
-                console.log(`==error==\n` + err);
-            }
-        });
+    const refreshData = async() => {
+        const payload = new dataFetch('/get/userData',null,'GET');
+        const response = await payload.makeRequest();  
+        if(!response.err)
+        {
+            setUserdata(response.data);                
+        }
+        setIsDataReady(true);
     }
 
     useEffect(() => {
@@ -64,7 +55,7 @@ export default function AddUser(props) {
         
         if(window.confirm('Are you sure to delete this user? this action is irreversible')){
             newRefreshToken().then(async () => {
-                const deleteUser = new dataFetch(`/submit/${user.id}`,null,getToken().token,`DELETE`);
+                const deleteUser = new dataFetch(`/submit/${user.id}`,null,`DELETE`);
                 const response = await deleteUser.makeRequest();
                 console.log(response);
 
@@ -120,7 +111,7 @@ export default function AddUser(props) {
                 role: role
             }
             newRefreshToken().then(()=>{
-                const submitAdd = new dataFetch(`/submit/${id}`,body,getToken().token,`POST`);
+                const submitAdd = new dataFetch(`/submit/${id}`,body,`POST`);
                 submitAdd.makeRequest().then((response)=> {
                     console.log(JSON.stringify(response));
                     setError(response.data.message);
@@ -142,7 +133,7 @@ export default function AddUser(props) {
                 role: role
             }
             newRefreshToken().then(() => {
-                const Edit = new dataFetch(`/submit/${id}`,body,getToken().token,`PATCH`);
+                const Edit = new dataFetch(`/submit/${id}`,body,`PATCH`);
                 Edit.makeRequest().then((response)=> {
                     console.log(JSON.stringify(response));
 
@@ -197,7 +188,7 @@ export default function AddUser(props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {renderTable()}
+                        {isDataReady? renderTable() : (<tr><td>Loading...</td></tr>)}
                     </tbody>
                 </table>
             </div>

@@ -163,26 +163,6 @@ const Styles = () => (
   `}</style>
 );
 
-function setToken(token){
-  cookie.set('token',token,{
-    expires: 1, // Expires in 1 day
-    secure: false, // Ensures the cookie is sent over HTTPS
-    httpOnly: false, // This is automatically handled by the browser, cannot be set via JavaScript
-  })
-}
-function setRefreshToken(refreshToken){
-  cookie.set('refreshToken', refreshToken, {
-    expires: 1, // Expires in 1 day
-    secure: false, // Ensures the cookie is sent over HTTPS
-    httpOnly: false, // This is automatically handled by the browser, cannot be set via
-  });
-}
-
-function handleSetToken(tokens){
-  setToken(tokens.token);
-  setRefreshToken(tokens.refreshToken);
-}
-
 
 // --- Login Page Component ---
 export default function LoginPage(props) {
@@ -222,10 +202,6 @@ export default function LoginPage(props) {
       }
       const response = await res.json();      
       console.log(response);
-      // console.log(response.token);
-      // console.log(response.refreshToken);
-      setToken(response.token);
-      setRefreshToken(response.refreshToken);
       props.setAuthenticated(true);
   
       navigate('/Dashboard');
@@ -242,26 +218,9 @@ export default function LoginPage(props) {
 
   const getcookie = async () => {
     console.log("Attempting to fetch and set cookie...");
-    try {
-      const res = await fetch('http://environment-relief.gl.at.ply.gg:24588/setcookie/eeeeeee', {
-        method: 'GET',
-        credentials: 'include' // Still crucial
-      });
-
-      console.log("Fetch completed. Status:", res.status, res.statusText);
-      const responseText = await res.text();
-      console.log("Server response text:", responseText);
-
-      if (!res.ok) {
-        console.error("Server returned an error status.");
-      } else {
-        console.log("Fetch successful. Check Network tab for Set-Cookie header.");
-        console.log("Click the button again to check if cookie is sent back.");
-      }
-    } catch (error) {
-      console.error('Fetch error occurred:', error);
-      // Check browser console for network/CORS errors specifically
-    }
+    const payload = new dataFetch('/testing',null,'GET');
+    const response = await payload.makeRequest();
+    console.log(response.data)
   };
   
   return (
@@ -330,7 +289,7 @@ export default function LoginPage(props) {
             // console.log(`token is: ${token}`);
           }}
         >
-          testGetToken
+          GetToken
         </button>
         <div>
            <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'left', marginBottom: '0px', fontSize:'0.8em'}}>{errorMessage}</p>

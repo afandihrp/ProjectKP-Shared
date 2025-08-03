@@ -7,7 +7,7 @@ import CourseEditor from './CourseEditor.jsx';
 import { hasPermission } from '../role.js';
 import coursesData from './course.json'; // Atau path relatif yang benar
 import dataFetch from '../handleFetching.js';
-import { tokenAPI } from '../App.jsx';
+import Icons from './Icons.jsx'
 
 // Peta untuk mengubah string ikon dari JSON menjadi komponen React
 const iconMap = {
@@ -90,15 +90,14 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
     const [editingCourse, setEditingCourse] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const { getToken, newRefreshToken } = useContext(tokenAPI);
-    
+   
 
     useEffect(() => {
         // Simulasi pengambilan data dari file JSON (atau API)
         // Di aplikasi nyata, Anda bisa menggunakan fetch di sini.
         // Karena kita mengimpornya langsung, kita bisa set datanya.
-            newRefreshToken().then(async () => {
-            const test = new dataFetch("/course", null, getToken().token, "GET");
+        Promise.resolve().then(async () => {
+            const test = new dataFetch("/course", null, "GET");
             const data = await test.makeRequest()
             // console.log(coursesData);
             const newdata = data.data
@@ -141,7 +140,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         setSelectedCourseId(null);
     };
     
-    const handleAddCourse = (newCourseData) => {
+    const handleAddCourse = async (newCourseData) => {
         const newCourse = {
             id: newCourseData.title.toLowerCase().replace(/\s+/g, '-').slice(0, 50),
             title: newCourseData.title,
@@ -153,12 +152,11 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         };
         setCourses(prevCourses => [...prevCourses, newCourse]);
 
-        newRefreshToken().then(()=>{
-            const addCourse = new dataFetch("/Course", newCourse, getToken().token, "POST");
-            addCourse.makeRequest().then((response)=>{
-                console.log(JSON.stringify(response.data));
-            });
-        })
+        const addCourse = new dataFetch("/Course", newCourse, "POST");
+        await addCourse.makeRequest().then((response)=>{
+            console.log(JSON.stringify(response.data));
+        });
+
 
         
     };
@@ -176,7 +174,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         }
         if (window.confirm('Apakah Anda yakin ingin menghapus kursus ini?')) {
             setCourses(prevCourses => prevCourses.filter(course => course.id !== courseId));
-            const deleteCourse = new dataFetch(`/course/${courseId}`, null, getToken().token, "DELETE");
+            const deleteCourse = new dataFetch(`/course/${courseId}`, null, "DELETE");
             deleteCourse.makeRequest().then((response)=>{
                 console.log(JSON.stringify(response));
             })
@@ -278,7 +276,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
                             onClick={() => handleCardClick(course)}
                             style={{ animationDelay: `${index * 0.1}s` }} // Menambahkan delay agar muncul satu per satu
                         >
-                            <div className="course-card-icon" style={{ backgroundColor: course.color }}><course.icon /></div>
+                            <div className="course-card-icon" style={{ backgroundColor: course.color }}><Icons icon={'FaCode'} /></div>
                             <div className="course-card-content">
                                 <h3>{course.title}</h3>
                                 <p>{course.description}</p>
