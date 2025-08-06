@@ -4,20 +4,6 @@ import dataFetch from '../handleFetching.js';
 
 
 import Icons from './Icons.jsx'
-import { 
-  FaBook, 
-  FaChartLine, 
-  FaClock, 
-  FaAward, 
-  FaPlay, 
-  FaUsers, 
-  FaCalendarAlt,
-  FaArrowRight,
-  FaStar,
-  FaGraduationCap,
-  FaLightbulb,
-  FaCode
-} from 'react-icons/fa';
 import './Frontpage.css';
 import {userInfo} from '../App.jsx';
 
@@ -29,28 +15,28 @@ async function getFrontData(id){
 const quickStatsDefault = 
 [
     {
-      icon: FaBook,
+      icon: 'FaBook',
       title: "Active Courses",
       value: "0",
       subtitle: "",
       color: "#3b82f6"
     },
     {
-      icon: FaChartLine,
+      icon: 'FaChartLine',
       title: "Progress",
       value: "0%",
       subtitle: "Overall completion",
       color: "#10b981"
     },
     {
-      icon: FaClock,
+      icon: 'FaClock',
       title: "Study Time",
       value: "0h",
       subtitle: "This month",
       color: "#f59e0b"
     },
     // {
-    //   icon: FaAward,
+    //   icon: 'FaAward',
     //   title: "Certificates",
     //   value: "3",
     //   subtitle: "Earned",
@@ -246,7 +232,7 @@ const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
             <p>Ready to continue your learning journey?</p>
           </div>
           <div className="date-info">
-            <FaCalendarAlt />
+            <Icons icon="FaCalendarAlt" />
             <span>{new Date().toLocaleDateString('en-US', { 
               weekday: 'long', 
               year: 'numeric', 
@@ -261,7 +247,7 @@ const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
           {quickStats.map((stat, index) => (
             <div key={index} className="stat-card">
               <div className="stat-icon" style={{ backgroundColor: stat.color }}>
-                <stat.icon />
+                <Icons icon={stat.icon} />
               </div>
               <div className="stat-content">
                 <h3>{stat.value}</h3>
@@ -279,7 +265,7 @@ const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
             <div className="section-header">
               <h2>Continue Learning</h2>
               <button className="see-all-btn" onClick={changeMenu}>
-                See All <FaArrowRight />
+                See All <Icons icon="FaArrowRight" />
               </button>
             </div>
             <div className="courses-list">
@@ -304,7 +290,7 @@ const Frontpage = ({  marginleft = 0, selectMenu }) => { //name = "Student",
                       </div>
                     </div>
                     <button className="continue-btn">
-                      <FaPlay />
+                      <Icons icon="FaPlay" />
                     </button>
                   </div>
                 )))

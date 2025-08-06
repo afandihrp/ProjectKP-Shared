@@ -20,52 +20,32 @@ function Loading(){
   )
 }
 
-async function getUserInfo(){
-  const user = new dataFetch("/users",null,'POST');
-  const response =await user.makeRequest();
-  if(!response.err)
-  {
-    return response.data&&response.data;
-  }
-  else
-  {
-    return null;
-  }
+async function getUserInfo() {
+  // Return a new Promise
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = new dataFetch("/users", null, 'POST');
+      const response = await user.makeRequest();
+
+      if (!response.err && response.data) {
+        // If successful, resolve the promise with the data
+        resolve(response.data);
+      } else {
+        // If there's an error or no data, DO NOTHING.
+        // The promise will stay in a 'pending' state,
+        // allowing the timeout to take effect.
+        console.log("API call failed or returned no data. Promise will remain pending.");
+      }
+    } catch (error) {
+      // If there is a network error, you can also leave it pending
+      // or reject it if you want to handle it differently.
+      // For this specific goal, we do nothing.
+      console.error("A network or other critical error occurred.", error);
+    }
+  });
 }
 
-// /**
-//  * 
-//  * @returns object token by .token
-//  */
-// async function newRefreshToken()
-// {
-//   // const token = cookie.get('refreshToken');
-//   const payload = new dataFetch('/login/refresh',null,'GET')
-//   const response = await payload.makeRequest();
-//   if(!response.err)
-//   {
-//     cookie.set('token',response.data.token);    
-//     // console.log(response.data);
-//     return response.data;
-//   }
-//   else
-//   {
-//     cookie.remove('refreshToken');
-//     cookie.remove('token');
-//     return null;
-//   }
-// }
 
-/**
- * 
- * @returns token
- */
-function getToken()
-{
-  const token = cookie.get('token');
-  const refreshToken = cookie.get('refreshToken');
-  return {token, refreshToken};
-}
 
 // You must wrap the component logic in another component because hooks
 // like useNavigate can only be called inside a component that is a
@@ -91,72 +71,41 @@ function AppContent() {
     })
   }
 
+async function runWithTimeout(taskPromise, timeoutMs)
+{
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(()=>{
+      reject(new Error(`Timeout after ${timeoutMs}ms`));
+    },timeoutMs);
+  });
+
+  try
+  {
+    const result = await Promise.race([taskPromise, timeoutPromise]);
+    return result;
+  }
+  catch(err)
+  {
+    navigate(`/login`);
+  }
+}
+
+  
 
   useEffect(() => {
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('Request timed out after 5 seconds'));
-      }, 5000); // 5000 milliseconds = 5 seconds
-    });
+    
 
-      Promise.race([
-        getUserInfo(), // This is your actual API call promise
-        timeoutPromise  // This is the timeout promise
-      ]).then((datauser) => {
-      if(datauser != null)
-      {
-        console.log(datauser);
-        setId(datauser[0].id);
-        setName(datauser[0].name);
-        setPhoneNumber(datauser[0].phonenumber);
-        setProfileImage(datauser[0].profilepic || '');
-        setRole(datauser[0].role);
-        setAuthenticated(true);
-      }
-      
-    }).catch(error => {
-      // This block runs if the timeout happens first, OR if getUserInfo() itself fails
-      console.error("Operation failed:", error.message);
-      setAuthenticated(false);
-      navigate('/login');
-    });
+    getUserInfo().then((datauser) => {
+      if(!datauser) return logout();
+      console.log(datauser);
+      setId(datauser[0].id);
+      setName(datauser[0].name);
+      setPhoneNumber(datauser[0].phonenumber);
+      setProfileImage(datauser[0].profilepic || '');
+      setRole(datauser[0].role);
+      setAuthenticated(true);
+    })
 
-    // const token = cookie.get('refreshToken');
-    // if (!token) 
-    // {
-    //   return logout();
-    // } 
-    // else 
-    // {
-    //   setAuthenticated(true);
-    //   newRefreshToken(token).then((data) => {
-    //     cookie.set('token', data.token);
-    //     getUserInfo().then((datauser) => {
-    //       if(!datauser) return logout();
-    //       if (datauser && datauser[0]) {
-            
-    //         setId(datauser[0].id);
-    //         setName(datauser[0].name);
-    //         setPhoneNumber(datauser[0].phonenumber);
-    //         setProfileImage(datauser[0].profilepic || '');
-    //         setRole(datauser[0].role);
-            
-    //       }
-    //     });
-    //   }).catch((err) => {
-    //     Promise.resolve().then(()=>{
-    //       cookie.remove('refreshToken');
-    //       cookie.remove('token');            
-    //       setAuthenticated(false); 
-                      
-    //     }).then(()=>{
-    //       navigate('/login');
-    //     })
-          
-          
-    //   });
-      
-    // }
   },[authenticated])
 
 

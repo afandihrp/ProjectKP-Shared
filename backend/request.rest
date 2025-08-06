@@ -100,7 +100,7 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
     },
     {
     "title": "Study Time",
-    "value": "0h"
+    "value": "10m"
     }    
 ]
 
@@ -109,7 +109,7 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
 POST http://environment-relief.gl.at.ply.gg:24588/frontpage/continuelearnig/97
 Content-Type: application/json
 Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
-###
+
 [
     {
       "title": "Python for Beginners",
@@ -243,18 +243,23 @@ GET http://environment-relief.gl.at.ply.gg:24588/Course
 Content-Type: application/json
 Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
 
+### patch course
+
+PATCH http://environment-relief.gl.at.ply.gg:24588/Course/32
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
+
+{
+    "title": "testing",
+    "description": "testing",
+    "icon": "FaCode",
+    "color": "#3b82f6",
+    "available": true
+}
+
 ### delete course
 
 DELETE http://environment-relief.gl.at.ply.gg:24588/Course/4
 Content-Type: application/json
 Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
 
-###
-GET http://environment-relief.gl.at.ply.gg:24588/set-cookie/apalah
-Content-Type: application/json
-
-###
-GET http://environment-relief.gl.at.ply.gg:24588/read-cookie
-
-###
-GET http://environment-relief.gl.at.ply.gg:24588/delete-cookie

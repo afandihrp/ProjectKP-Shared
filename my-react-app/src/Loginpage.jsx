@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import {useNavigate} from 'react-router-dom';
+import {data, useNavigate} from 'react-router-dom';
 import cookie from 'js-cookie';
 import { useEffect } from 'react';
 import dataFetch from './handleFetching';
@@ -172,6 +172,21 @@ export default function LoginPage(props) {
   const [errorMessage, setErrorMessage] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const navigate = useNavigate();
+
+  try{
+    const testToken = new dataFetch('/testing',null,'GET');
+    const response = testToken.makeRequest().data;
+    if(response.message != null)
+    {
+      const authenticated = sessionStorage.getItem('authenticated');    
+      navigate('/Dashboard');
+      return props.setAuthenticated(true);
+    }    
+  }
+  catch(err)
+  {
+
+  }
   
   const handleSignin =  async (e) =>
   {
@@ -203,6 +218,7 @@ export default function LoginPage(props) {
       const response = await res.json();      
       console.log(response);
       props.setAuthenticated(true);
+      sessionStorage.setItem('authenticated', true);
   
       navigate('/Dashboard');
     }

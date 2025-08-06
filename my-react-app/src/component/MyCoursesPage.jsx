@@ -76,6 +76,58 @@ const AddCourseModal = ({ isOpen, onClose, onAddCourse }) => {
     );
 };
 
+// Komponen Modal untuk mengedit detail kursus (judul & deskripsi)
+const EditCourseDetailsModal = ({ isOpen, onClose, onSave, course }) => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+
+    useEffect(() => {
+        if (course) {
+            setTitle(course.title);
+            setDescription(course.description);
+        } else {
+            // Reset form jika tidak ada kursus (misal, saat modal ditutup)
+            setTitle('');
+            setDescription('');
+        }
+    }, [course]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!title || !description) {
+            alert('Judul dan deskripsi tidak boleh kosong.');
+            return;
+        }
+        // Kirim kembali seluruh objek kursus yang diperbarui
+        onSave({ ...course, title, description });
+        onClose();
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <h2>Edit Detail Kursus</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="edit-title">Judul Kursus</label>
+                        <input type="text" id="edit-title" value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="edit-description">Deskripsi Kursus</label>
+                        <textarea id="edit-description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                    </div>
+                    <div className="modal-actions">
+                        <button type="button" onClick={onClose} className="btn-cancel">Batal</button>
+                        <button type="submit" className="btn-submit">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 /**
  * Komponen ini sekarang menjadi usang karena fungsionalitasnya
  * telah digabungkan ke dalam MyCoursesPage dengan tampilan kondisional untuk admin.
@@ -86,7 +138,8 @@ const AddCourseModal = ({ isOpen, onClose, onAddCourse }) => {
 export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai default {} untuk user
     const [selectedCourseId, setSelectedCourseId] = useState(null);
     const [courses, setCourses] = useState(initialCourses);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [editDetailsModalState, setEditDetailsModalState] = useState({ isOpen: false, course: null });
     const [editingCourse, setEditingCourse] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -127,11 +180,14 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
     const isAdminView = user?.usrRole === 'admin'; // Untuk teks UI spesifik admin jika perlu
 
     const handleCardClick = (course) => {
-        // Siapapun bisa masuk ke detail kursus jika tersedia
-        if (course.available) {
+        if (isAdminView) {
+            // Admin: Klik kartu untuk membuka editor penuh (kustomisasi modul/materi)
+            setEditingCourse(course);
+        } else if (course.available) {
+            // Siswa: Klik kartu untuk memulai/melanjutkan kursus
             setSelectedCourseId(course.id);
         } else {
-            // Beri peringatan jika kursus belum tersedia
+            // Siswa: Kursus belum tersedia
             alert('Kursus ini sedang dalam pengembangan. Silakan periksa kembali nanti.');
         }
     };
@@ -161,6 +217,28 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         
     };
 
+    const handleSaveCourseDetails = async (updatedCourse) => {
+        // API call untuk memperbarui judul dan deskripsi
+        const test = {
+    "title": "Nasigoreng",
+    "description": "sss",
+    "icon": "FaCode",
+    "color": "#3b82f6",
+    "available": true
+}
+        const updateCourse = new dataFetch(`/course/${30}`, test, "PATCH"); 
+        
+        try {
+            const response = await updateCourse.makeRequest();
+            console.log('Detail kursus berhasil diperbarui:', response.data);
+            setCourses(prevCourses => prevCourses.map(c => (c.id === updatedCourse.id ? updatedCourse : c)));
+            setEditDetailsModalState({ isOpen: false, course: null });
+        } catch (error) {
+            console.error('Gagal memperbarui detail kursus:', error);
+            alert('Gagal menyimpan perubahan. Silakan coba lagi.');
+        }
+    };
+
     const handleUpdateCourse = (updatedCourse) => {
         setCourses(prevCourses => prevCourses.map(c => (c.id === updatedCourse.id ? updatedCourse : c)));
         setEditingCourse(updatedCourse); // Menjaga state editor tetap sinkron
@@ -182,15 +260,10 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         }
     };
 
-    const handleEditCourse = (courseId) => {
-        const courseToEdit = courses.find(course => course.id === courseId);
-        if (courseToEdit) {
-            setEditingCourse(courseToEdit);
-        }
+    // Membuka modal untuk mengedit detail (nama & deskripsi)
+    const handleOpenEditDetailsModal = (course) => {
+        setEditDetailsModalState({ isOpen: true, course: course });
     };
-   
-
-
 
     const handleBackFromEditor = () => {
         setEditingCourse(null);
@@ -230,8 +303,15 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
 
     return (
         <>
-            {/* Modal hanya akan dirender jika diperlukan oleh admin */}
-            {canCreateCourse && <AddCourseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddCourse={handleAddCourse} />}
+            {/* Modal untuk menambah kursus */}
+            {canCreateCourse && <AddCourseModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAddCourse={handleAddCourse} />}
+            {/* Modal untuk mengedit detail kursus */}
+            <EditCourseDetailsModal
+                isOpen={editDetailsModalState.isOpen}
+                onClose={() => setEditDetailsModalState({ isOpen: false, course: null })}
+                onSave={handleSaveCourseDetails}
+                course={editDetailsModalState.course}
+            />
             <style>{`
                 @keyframes fadeInUp {
                     from {
@@ -257,7 +337,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
                                 <h1>Kelola Kursus - Mode Admin</h1>
                                 <p>Tambah, edit, atau hapus kursus yang tersedia untuk siswa.</p>
                             </div>
-                            <button className="add-course-btn" onClick={() => setIsModalOpen(true)}>
+                            <button className="add-course-btn" onClick={() => setIsAddModalOpen(true)}>
                                 <FaPlus /> Tambah Kursus Baru
                             </button>
                         </>
@@ -286,7 +366,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
                                 {course.available && !isAdminView ? <FaArrowRight /> : null}
                                 {isAdminView && (
                                     <div className="admin-card-actions">
-                                        <button className="admin-action-btn edit-btn" title="Edit Kursus" onClick={(e) => { e.stopPropagation(); handleEditCourse(course.id); }}>
+                                        <button className="admin-action-btn edit-btn" title="Edit Nama & Deskripsi" onClick={(e) => { e.stopPropagation(); handleOpenEditDetailsModal(course); }}>
                                             <FaPencilAlt />
                                         </button>
                                         <button className="admin-action-btn delete-btn" title="Hapus Kursus" onClick={(e) => { e.stopPropagation(); handleDeleteCourse(course.id); }}>

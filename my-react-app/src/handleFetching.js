@@ -5,7 +5,8 @@ export default class dataFetch{
      *  @param {object} body - the body payload for fetch api, example: {key: value} and etc, if using get just insert null.
      *  @param {string} method - choose fetch api mode GET, POST, PUT, PATCH, DELETE in string.
      *  - class usage example: const example = new dataFetch(url,body,method)
-     *  - available methods: makeRequest, refreshToken.
+     *  - available methods: makeRequest.
+     *  - for methods always use async/await!
     */
 
     
@@ -22,11 +23,11 @@ export default class dataFetch{
         this.body = body;
     }
 
-    async refreshToken()
+    async _refreshToken()
     {
         const url = this.backendUrl+'/login/refresh';
 
-        console.log(`attempting to refresh token with: ${url}`);
+        console.log(`attempting to refresh token`);
         const options = {
             method: 'GET',
             credentials: 'include'
@@ -35,11 +36,11 @@ export default class dataFetch{
         {
             const res = await fetch(url,options);
             if(!res.ok) {
-                console.log(`Oops, something has gone wrong`);
+                console.log(`Oops, something has gone wrong ${res.status}`);
                 // await fetch(this.backendUrl+'/login/logout',options);
                 return `Oops, something has gone wrong`;
             }
-            return `ok`;
+            return this.makeRequest();
         }
         catch(err)
         {
@@ -53,6 +54,7 @@ export default class dataFetch{
      * 
      * @returns - returns response object of {data: `data` or false, err: `err msg` or false, and responds as res }
      * example await object.makeRequest();
+     * - use async/await!
      */
     async makeRequest(){
         // console.log(this.url,this.method,this.header,this.body);
@@ -67,19 +69,29 @@ export default class dataFetch{
         }
 
         try{
-            await this.refreshToken();
+            // await this.refreshToken();
             const res = await fetch(this.url,options)
             // const responseText = await res.clone().text();
             // console.log("Raw Server Response:", responseText);
             if(res.status === 401)
             {
                 console.log(`token expired`);
-                // return await this.refreshToken();
+                return await this._refreshToken();
             }
             if(!res.ok) return{data: res.status, err: true};
-            const data = await res.json();
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                console.log("Response is JSON. Parsing as JSON.");
+                const data = await res.json();
+                return{data: data, err: false, status: res.status};
+            } 
+            else {
+                console.log("Response is NOT JSON. Parsing as text.");
+                const data = await res.text();
+                return{data: data, err: false, status: res.status};
+            }
             // console.log(data);
-            return{data: data, err: false};
+            // return{data: data, err: false};
             
         }
         catch(err){

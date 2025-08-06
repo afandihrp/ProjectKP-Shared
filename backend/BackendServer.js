@@ -7,6 +7,20 @@ const jwt = require('jsonwebtoken');
 const argon2 = require('argon2');
 const cors = require('cors');
 const { spawn } = require('child_process');
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './pictureStorage')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  
+})
+
+const upload = multer({ storage: storage });
+
 
 app.use(express.json());
 app.use(cors({
@@ -19,10 +33,12 @@ const SECRET_KEY = '2e4c5d585ea22052d99d9b03205357be872ce2008b13d2f2c94da53ec1db
 const SECRET_REFRESH_KEY= '48fec683db5cdb61f859f94b123b390340ad4680b000ed96fa92c051cc140cfe'; // 'refreshprocodecg' encrypted with sha256 
 
 let refreshTokens = []
+let id = []
 
 app.use((req, res, next) => {
     console.log(`\n\n//========NEW REQUEST==============================================================//=>`);
     console.log(`URL: ${req.url}`);
+    console.log(`Active id: `);
     const cookies = req.headers.cookie&&req.headers.cookie.split(';');
     console.log(`Cookies: ${JSON.stringify(cookies)}`);
     console.log(`Body: ${JSON.stringify(req.body)}`);
@@ -73,7 +89,14 @@ function verifyRefreshToken(req,res,next)
     // const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
     console.log(`refreshToken: ${req.cookies.refreshToken}`)
     const token = req.cookies.refreshToken&&req.cookies.refreshToken || req.headers.authorization && req.headers.authorization.split(' ')[1];
-    if(!refreshTokens.includes(token) || !token){ console.log('Unauthorized: Invalid refresh token'); return res.status(401).send('Unauthorized: Invalid refresh token');    }
+    if(!refreshTokens.includes(token) || !token){ 
+        console.log('Unauthorized: Invalid refresh token'); 
+        res.clearCookie('token');
+        res.clearCookie('refreshToken');
+        // res.redirect('https://www.google.com');
+        return res.status(401).send('Unauthorized: Invalid refresh token'); 
+        // return res.status(302).redirect('https://www.google.com')
+    }
     jwt.verify(token,SECRET_REFRESH_KEY,(err, user) => {
         if(err) return res.status(403).send(`Forbidden: ${err}`);
         req.user = user;
@@ -138,6 +161,7 @@ app.post('/login/auth', async (req,res) => {
         {
             return res.status(400).send('Invalid password');  
         } 
+        id.push(rows[0].id);
         const user = {
             id: rows[0].id,
             email: rows[0].email,
@@ -211,34 +235,32 @@ app.use(verifyToken);
 
 //==============================================================//=>
 
-
 app.get('/testing',(req,res)=>{
     console.log('hellow');
-    // res.cookie('test', 'peler');
-    // setCookie(res, 'babik','test',100);
-    res.clearCookie('test');
-    res.status(200).send({message: `hi!`});
+    return res.status(200).send({message: `hi!`});
+
 })
+
 
 
 //==============================================================//=>
 //=> check if token expired and refresh it
 //==============================================================//=>
 
-app.use((req,res,next)=>
-{
-    const token = req.cookies.refreshToken&&req.cookies.refreshToken || req.headers.authorization && req.headers.authorization.split(' ')[1];
-    console.log(`refreshToken: ${token}`);
-    if(token != undefined)
-    {
-        // console.log(`\n\nokeee\n\n`);
-        return next();        
-    }
-    res.clearCookie('token');
-    res.clearCookie('refreshToken');
-    res.status(403).send('Forbidden, you are not logged in!');
+// app.use((req,res,next)=>
+// {
+//     const token = req.cookies.refreshToken&&req.cookies.refreshToken || req.headers.authorization && req.headers.authorization.split(' ')[1];
+//     console.log(`refreshToken: ${token}`);
+//     if(token != undefined)
+//     {
+//         // console.log(`\n\nokeee\n\n`);
+//         return next();        
+//     }
+//     res.clearCookie('token');
+//     res.clearCookie('refreshToken');
+//     res.status(403).send('Forbidden, you are not logged in!');
     
-});
+// });
 
 //==============================================================//=>
 //=> get front page data for that specific id
@@ -358,6 +380,36 @@ app.post('/Course',requireAdmin, async (req,res) =>{
     }
 
 })
+
+app.patch('/Course/:id',requireAdmin, async (req,res)=>{
+    const id = req.params.id && req.params.id;
+    // if(!id) return res.status(400).send('bad request, id is missing');
+    const {title, description, icon, color, available} = req.body;
+    console.log(req.body);
+    if(!title || !description || !icon || !color || !available) return res.status(400).send('bad request');
+    try
+    {
+        const query = ` UPDATE course
+                        SET title = $1, description = $2, icon = $3, color = $4, available = $5
+                        WHERE id = $6;`;
+        const values = [title, description, icon, color, available, id];
+        const result = await db.query(query, values);
+        // console.log(result);
+        const {rows, rowCount} = result;
+        if(rowCount>0){
+            res.status(200).send('ok');
+        }
+        else{
+            res.status(404).send('course with that id was not found');
+        }     
+
+    }
+    catch(err)
+    {
+        res.status(500).send(`==Error==: ${err.message}`);
+    }
+
+});
 
 app.patch('/Course/modules/:id',requireAdmin, async (req,res) =>{
     const id = req.params.id;

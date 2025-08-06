@@ -99,7 +99,7 @@ export default function AddUser(props) {
         ));
     }
 
-    function Submit(){
+    async function Submit(){
 
         if(mode == 'add')
         {
@@ -110,18 +110,18 @@ export default function AddUser(props) {
                 phonenumber: phonenumber,
                 role: role
             }
-            newRefreshToken().then(()=>{
-                const submitAdd = new dataFetch(`/submit/${id}`,body,`POST`);
-                submitAdd.makeRequest().then((response)=> {
-                    console.log(JSON.stringify(response));
-                    setError(response.data.message);
+            
+            const submitAdd = new dataFetch(`/submit/${id}`,body,`POST`);
+            await submitAdd.makeRequest().then((response)=> {
+                console.log(JSON.stringify(response));
+                setError(response.data.message);
 
-                }).finally(() => {
-                    clearForm();
-                    refreshData();
+            }).finally(() => {
+                clearForm();
+                refreshData();
 
-                })
             })
+            
 
         }
         else if(mode == 'edit')
@@ -132,18 +132,18 @@ export default function AddUser(props) {
                 phonenumber: phonenumber,
                 role: role
             }
-            newRefreshToken().then(() => {
-                const Edit = new dataFetch(`/submit/${id}`,body,`PATCH`);
-                Edit.makeRequest().then((response)=> {
-                    console.log(JSON.stringify(response));
+            
+            const Edit = new dataFetch(`/submit/${id}`,body,`PATCH`);
+            await Edit.makeRequest().then((response)=> {
+                console.log(JSON.stringify(response));
 
-                }).finally(() => {
-                    clearForm();
-                    refreshData();
+            }).finally(() => {
+                clearForm();
+                refreshData();
 
-                })
-                
             })
+                
+            
         }
     }
 

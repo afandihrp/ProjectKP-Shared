@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import './CourseEditor.css';
 import {
     FaArrowLeft, FaPlus, FaTrash, FaPencilAlt, FaPalette,
@@ -7,8 +7,7 @@ import {
 import { CgChevronDown, CgChevronUp, CgCheckO } from 'react-icons/cg';
 import LessonEditor from './LessonEditor.jsx';
 import dataFetch from '../handleFetching.js';
-import { tokenAPI } from '../App.jsx';
-
+import { userInfo } from '../App.jsx';
 const availableIcons = {
     FaCode, FaLaptopCode, FaAws, FaBook, FaBrain, FaRocket, FaCloud, FaDatabase
 };
@@ -172,7 +171,7 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
     const [isAddModuleModalOpen, setIsAddModuleModalOpen] = useState(false);
     const [editModuleModalState, setEditModuleModalState] = useState({ isOpen: false, moduleIndex: null, currentTitle: '' });
     const [isAppearanceModalOpen, setIsAppearanceModalOpen] = useState(false);
-
+    const {id,name,phoneNumber,profileImage,role} = useContext(userInfo);
     // Fungsi untuk menangani tombol kembali, dengan peringatan jika ada perubahan yang belum disimpan
     const handleBack = () => {
         const originalCourseString = JSON.stringify(course);
@@ -221,7 +220,7 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
         });
     };
 
-    const handleAddModule = (moduleTitle) => {
+     const handleAddModule = async (moduleTitle) => {
         const newModule = {
             moduleTitle: moduleTitle,
             lessons: []
@@ -232,7 +231,11 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
         };
         setEditedCourse(updatedCourse);
         // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
-        setIsAddModuleModalOpen(false); // Tutup modal setelah berhasil
+        //setIsAddModuleModalOpen(false); // Tutup modal setelah berhasil
+        const addModule = new dataFetch(`/modules/${id}`, newModule, "PATCH");
+                await addModule.makeRequest().then((response)=>{
+                    console.log(JSON.stringify(response.data));
+                });
     };
 
     const handleDeleteModule = (e, moduleIndex) => {
