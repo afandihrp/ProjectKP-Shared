@@ -7,26 +7,30 @@ import {
   FaUsers,
   FaCalendarAlt,
   FaArrowRight,
-  FaStar,
-  FaGraduationCap,
-  FaLightbulb,
-  FaCode
+  FaStar, FaGraduationCap, FaLightbulb, FaCode,
+  FaLaptopCode, FaBrain, FaRocket, FaCloud, FaDatabase, FaAws
 } from 'react-icons/fa';
 
 // 1. Create a mapper object
-const iconMap = {
-  FaBook: FaBook,
-  FaChartLine: FaChartLine,
-  FaClock: FaClock,
-  FaAward: FaAward,
-  FaPlay: FaPlay,
-  FaUsers: FaUsers,
-  FaCalendarAlt: FaCalendarAlt,
-  FaArrowRight: FaArrowRight,
-  FaStar: FaStar,
-  FaGraduationCap: FaGraduationCap,
-  FaLightbulb: FaLightbulb,
-  FaCode: FaCode
+export const iconMap = {
+  FaBook,
+  FaChartLine,
+  FaClock,
+  FaAward,
+  FaPlay,
+  FaUsers,
+  FaCalendarAlt,
+  FaArrowRight,
+  FaStar,
+  FaGraduationCap,
+  FaLightbulb,
+  FaCode,
+  FaLaptopCode,
+  FaBrain,
+  FaRocket,
+  FaCloud,
+  FaDatabase,
+  FaAws
 };
 
 export default function Icons({ icon, ...props }) {

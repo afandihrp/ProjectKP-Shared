@@ -3,7 +3,7 @@ import style from './AddUser.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import React, { useState, useContext, useEffect } from 'react';
 import dataFetch from '../handleFetching.js'
-import { data } from 'react-router-dom';
+
 
 
 export default function AddUser(props) {

@@ -38,25 +38,6 @@ export default function PythonCompiler(props) {
                 setOutput(`Error from server: ${response.data.status}\n`);
             }
             
-            // console.log(`new token: ${getToken().token}`);
-            // const res = await fetch('http://147.185.221.30:24588/execPython', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${getToken().token}`  // Use the token from context
-            //     },
-            //     body: JSON.stringify({
-            //         code: code
-            //     })
-            // });
-
-            // if (!res.ok) {
-            //     const errorText = await res.text();
-            //     setOutput(`Error from server: ${res.status}\n${errorText}`);
-            //     return;
-            // }
-
-            // const result = await res.json();
             let finalOutput = "";
 
             if (result.Output) {

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import './CourseEditor.css';
 import {
-    FaArrowLeft, FaPlus, FaTrash, FaPencilAlt, FaPalette,
+    FaArrowLeft, FaPlus, FaTrash, FaPencilAlt,
     FaCode, FaLaptopCode, FaAws, FaBook, FaBrain, FaRocket, FaCloud, FaDatabase
 } from 'react-icons/fa';
 import { CgChevronDown, CgChevronUp, CgCheckO } from 'react-icons/cg';
@@ -97,71 +97,6 @@ const EditModuleModal = ({ isOpen, onClose, onEditModule, currentTitle }) => {
     );
 };
 
-const EditCourseAppearanceModal = ({ isOpen, onClose, onSave, currentIconName, currentColor }) => {
-    const [selectedIcon, setSelectedIcon] = useState(currentIconName);
-    const [selectedColor, setSelectedColor] = useState(currentColor);
-
-    React.useEffect(() => {
-        if (isOpen) {
-            setSelectedIcon(currentIconName);
-            setSelectedColor(currentColor);
-        }
-    }, [currentIconName, currentColor, isOpen]);
-
-    if (!isOpen) return null;
-
-    const handleSave = () => {
-        onSave({ icon: selectedIcon, color: selectedColor });
-        onClose();
-    };
-
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <h2>Ganti Ikon & Warna Kursus</h2>
-                
-                <div className="form-group">
-                    <label>Pilih Ikon</label>
-                    <div className="icon-selector">
-                        {Object.keys(availableIcons).map(iconName => {
-                            const IconComponent = availableIcons[iconName];
-                            return (
-                                <button 
-                                    key={iconName} 
-                                    className={`icon-option ${selectedIcon === iconName ? 'selected' : ''}`}
-                                    onClick={() => setSelectedIcon(iconName)}
-                                    title={iconName}
-                                >
-                                    <IconComponent />
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div className="form-group">
-                    <label>Pilih Warna</label>
-                    <div className="color-selector">
-                        {availableColors.map(color => (
-                            <div 
-                                key={color}
-                                className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                                style={{ backgroundColor: color }}
-                                onClick={() => setSelectedColor(color)}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="modal-actions">
-                    <button type="button" onClick={onClose} className="btn-cancel">Batal</button>
-                    <button type="button" onClick={handleSave} className="btn-submit">Simpan</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 export default function CourseEditor({ course, onBack, onUpdateCourse, marginleft }) {
     // Gunakan deep copy untuk state awal agar tidak ada mutasi tak terduga
     const [editedCourse, setEditedCourse] = useState(() => JSON.parse(JSON.stringify(course)));
@@ -169,8 +104,7 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
     // State ini sekarang hanya menyimpan index dari materi yang diedit
     const [editingLessonIndices, setEditingLessonIndices] = useState(null); // { moduleIndex, lessonIndex }
     const [isAddModuleModalOpen, setIsAddModuleModalOpen] = useState(false);
-    const [editModuleModalState, setEditModuleModalState] = useState({ isOpen: false, moduleIndex: null, currentTitle: '' });
-    const [isAppearanceModalOpen, setIsAppearanceModalOpen] = useState(false);
+    const [editModuleModalState, setEditModuleModalState] = useState({ isOpen: false, moduleIndex: null, currentTitle: '' });    
     const {id,name,phoneNumber,profileImage,role} = useContext(userInfo);
     // Fungsi untuk menangani tombol kembali, dengan peringatan jika ada perubahan yang belum disimpan
     const handleBack = () => {
@@ -188,7 +122,7 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
     // Fungsi untuk "menyimpan" semua perubahan sekaligus
     const handleSaveChanges = () => {
         onUpdateCourse(editedCourse);
-        alert('Perubahan telah disimpan (secara lokal). Untuk penyimpanan permanen, hubungkan ke API.');
+        console.log(`updatedCourse====\n ${JSON.stringify(editedCourse)}`);
         onBack(); // Kembali ke daftar kursus setelah menyimpan
     };
 
@@ -220,32 +154,65 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
         });
     };
 
-     const handleAddModule = async (moduleTitle) => {
-        const newModule = {
-            moduleTitle: moduleTitle,
-            lessons: []
-        };
-        const updatedCourse = {
-            ...editedCourse,
-            modules: [...editedCourse.modules, newModule]
-        };
-        setEditedCourse(updatedCourse);
-        // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
-        //setIsAddModuleModalOpen(false); // Tutup modal setelah berhasil
-        const addModule = new dataFetch(`/modules/${id}`, newModule, "PATCH");
-                await addModule.makeRequest().then((response)=>{
-                    console.log(JSON.stringify(response.data));
-                });
+    const handleAddModule = async (moduleTitle) => {
+        const payload = { moduleTitle };
+        // Gunakan ID dari course yang sedang diedit
+        const endpoint = `/Course/modules/${editedCourse.id}/add_module_title`;
+        const addModuleRequest = new dataFetch(endpoint, payload, "PATCH");
+
+        try {
+            const response = await addModuleRequest.makeRequest();
+            // Backend sekarang mengembalikan { modules: [...] } jika berhasil
+            if (response.err || !response.data.modules) {
+                throw new Error(response.data || 'Gagal menambahkan modul atau respons dari server tidak valid.');
+            }
+
+            // Ambil daftar modul terbaru dari respons backend
+            const updatedModules = response.data.modules;
+
+            // Perbarui state lokal dengan data yang sinkron dari database
+            setEditedCourse(prevCourse => ({
+                ...prevCourse,
+                modules: updatedModules
+            }));
+
+            alert('Modul berhasil ditambahkan!');
+        } catch (error) {
+            console.error("Error adding module:", error);
+            alert(`Gagal menambahkan modul: ${error.message}`);
+        }
     };
 
-    const handleDeleteModule = (e, moduleIndex) => {
+    const handleDeleteModule = async (e, moduleIndex) => {
         e.stopPropagation();
-        const moduleTitle = editedCourse.modules[moduleIndex].moduleTitle;
-        if (window.confirm(`Apakah Anda yakin ingin menghapus modul "${moduleTitle}"?`)) {
-            const updatedModules = editedCourse.modules.filter((_, idx) => idx !== moduleIndex);
-            const updatedCourse = { ...editedCourse, modules: updatedModules };
-            setEditedCourse(updatedCourse);
-            // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
+        const moduleToDelete = editedCourse.modules[moduleIndex];
+        if (!moduleToDelete) return;
+
+        if (window.confirm(`Apakah Anda yakin ingin menghapus modul "${moduleToDelete.moduleTitle}"?`)) {
+            const courseId = editedCourse.id;
+            const moduleIdToDelete = moduleToDelete.id;
+            
+            const endpoint = `/Course/modules/${courseId}/delete_module_title`;
+            const payload = { id: moduleIdToDelete };
+            const deleteRequest = new dataFetch(endpoint, payload, "PATCH");
+
+            try {
+                const response = await deleteRequest.makeRequest();
+                if (response.err || !response.data.modules) {
+                    throw new Error(response.data || 'Gagal menghapus modul.');
+                }
+
+                // Perbarui state dengan data baru yang sinkron dari server
+                setEditedCourse(prevCourse => ({
+                    ...prevCourse,
+                    modules: response.data.modules
+                }));
+
+                alert('Modul berhasil dihapus.');
+            } catch (error) {
+                console.error("Error deleting module:", error);
+                alert(`Gagal menghapus modul: ${error.message}`);
+            }
         }
     };
 
@@ -271,32 +238,31 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
         // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
     };
 
-    const handleUpdateAppearance = ({ icon, color }) => {
-        const updatedCourse = { ...editedCourse, icon, color };
-        setEditedCourse(updatedCourse);
-        // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
-    };
-
-    const handleAvailabilityToggle = () => {
-        const updatedCourse = { ...editedCourse, available: !editedCourse.available };
-        setEditedCourse(updatedCourse);
-        // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
-    };
-
-    const handleDeleteLesson = (e, moduleIndex, lessonIndex) => {
+    const handleDeleteLesson = async (e, moduleIndex, lessonIndex) => {
         e.stopPropagation();
-        const lessonTitle = editedCourse.modules[moduleIndex].lessons[lessonIndex].title;
+        const lessonTitle = editedCourse.modules[moduleIndex].lessons[lessonIndex].title || "Materi Baru";
         if (window.confirm(`Apakah Anda yakin ingin menghapus materi "${lessonTitle}"?`)) {
+            // Buat objek kursus yang diperbarui secara immutable
             const updatedModules = editedCourse.modules.map((mod, idx) => {
                 if (idx === moduleIndex) {
+                    // Hapus materi dari array 'lessons' di modul yang sesuai
                     const updatedLessons = mod.lessons.filter((_, lIdx) => lIdx !== lessonIndex);
                     return { ...mod, lessons: updatedLessons };
                 }
                 return mod;
             });
             const updatedCourse = { ...editedCourse, modules: updatedModules };
+
+            // 1. Update state lokal agar UI langsung merespons dan menghapus materi dari tampilan
             setEditedCourse(updatedCourse);
-            // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
+
+            try {
+                // 2. Panggil onUpdateCourse yang akan mengirim seluruh objek 'updatedCourse' ke backend via PATCH
+                await onUpdateCourse(updatedCourse);
+            } catch (error) {
+                console.error("Gagal menghapus materi:", error);
+                alert("Terjadi kesalahan saat menyimpan perubahan ke server. Silakan coba lagi.");
+            }
         }
     };
 
@@ -305,15 +271,25 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
         setEditingLessonIndices({ moduleIndex, lessonIndex });
     };
 
-    const handleSaveLesson = (updatedLessonData) => {
+    const handleSaveLesson = async (updatedLessonData) => {
         const { moduleIndex, lessonIndex } = editingLessonIndices;
         
-        const updatedCourse = JSON.parse(JSON.stringify(editedCourse));
+        const updatedCourse = JSON.parse(JSON.stringify(editedCourse)); // Deep copy
         updatedCourse.modules[moduleIndex].lessons[lessonIndex] = updatedLessonData;
 
+        // Update state lokal agar UI responsif
         setEditedCourse(updatedCourse);
-        // onUpdateCourse(updatedCourse); // Dihapus: Perubahan akan disimpan sekaligus
-        setEditingLessonIndices(null); // Kembali ke tampilan editor kursus
+
+        try {
+            // Panggil fungsi update dari parent (MyCoursesPage) yang akan mengirim
+            // seluruh objek kursus ke backend.
+            await onUpdateCourse(updatedCourse);
+            alert('Materi berhasil disimpan.');
+            setEditingLessonIndices(null); // Kembali ke editor kursus
+        } catch (error) {
+            console.error("Gagal menyimpan materi:", error);
+            alert("Terjadi kesalahan saat menyimpan materi. Silakan coba lagi.");
+        }
     };
 
     const CourseIcon = availableIcons[editedCourse.icon] || FaCode;
@@ -344,13 +320,6 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
                 onEditModule={handleConfirmEditModule}
                 currentTitle={editModuleModalState.currentTitle}
             />
-            <EditCourseAppearanceModal
-                isOpen={isAppearanceModalOpen}
-                onClose={() => setIsAppearanceModalOpen(false)}
-                onSave={handleUpdateAppearance}
-                currentIconName={editedCourse.icon}
-                currentColor={editedCourse.color}
-            />
             <div className="course-editor-page" style={{ marginLeft: `${marginleft}px` }}>
                 <header className="course-editor-header">
                     <div>
@@ -365,21 +334,9 @@ export default function CourseEditor({ course, onBack, onUpdateCourse, marginlef
                                 <h1>{editedCourse.title}</h1>
                                 <p>Mode Kustomisasi</p>
                             </div>
-                            <button className="action-btn edit-appearance-btn" title="Ganti Ikon & Warna" onClick={() => setIsAppearanceModalOpen(true)}>
-                                <FaPalette />
-                            </button>
                         </div>
                     </div>
                     <div className="editor-header-actions">
-                        <div className="availability-toggle">
-                            <label htmlFor="course-availability">
-                                {editedCourse.available ? 'Tersedia' : 'Draf'}
-                            </label>
-                            <label className="switch">
-                                <input id="course-availability" type="checkbox" checked={editedCourse.available} onChange={handleAvailabilityToggle} />
-                                <span className="slider round"></span>
-                            </label>
-                        </div>
                         <button className="add-module-btn" onClick={() => setIsAddModuleModalOpen(true)}>
                             <FaPlus /> Tambah Modul
                         </button>

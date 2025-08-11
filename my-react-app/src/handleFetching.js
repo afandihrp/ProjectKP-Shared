@@ -4,13 +4,16 @@ export default class dataFetch{
      *  @param {string} url - url string for fetch api,example: '/api/blabla.'
      *  @param {object} body - the body payload for fetch api, example: {key: value} and etc, if using get just insert null.
      *  @param {string} method - choose fetch api mode GET, POST, PUT, PATCH, DELETE in string.
-     *  - class usage example: const example = new dataFetch(url,body,method)
-     *  - available methods: makeRequest.
-     *  - for methods always use async/await!
+     *  @param {object} header - header the of http request, by default will be content app/json if not filled and it is optional
+     *  @example const example = new dataFetch(url,body,method,header);
+     *  @tutorial 
+     *  header is optional
+     *  available methods: makeRequest.
+     *  for methods always use async/await!
     */
 
     
-    constructor(url,body, method){
+    constructor(url,body, method, header = {'Content-Type': 'application/json'}){
         this.backendUrl =`http://environment-relief.gl.at.ply.gg:24588`;
         this.url = this.backendUrl+url;
         this.method = method
@@ -18,10 +21,11 @@ export default class dataFetch{
         
         
         this.header = {
-            'Content-Type': 'application/json'
+            ...header,
         }
         this.body = body;
     }
+
 
     async _refreshToken()
     {

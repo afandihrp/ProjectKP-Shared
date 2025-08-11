@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {data, useNavigate} from 'react-router-dom';
 import cookie from 'js-cookie';
 import { useEffect } from 'react';
@@ -167,26 +167,28 @@ const Styles = () => (
 // --- Login Page Component ---
 export default function LoginPage(props) {
   //props.handleSetToken(token)
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
   const [errorMessage, setErrorMessage] = useState('');
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
+
+  const emailRef = useRef(``);
+  const passwordRef = useRef(``);
+  // const [showErrorMessage, setShowErrorMessage] = useState(false);
   const navigate = useNavigate();
 
-  try{
-    const testToken = new dataFetch('/testing',null,'GET');
-    const response = testToken.makeRequest().data;
-    if(response.message != null)
-    {
-      const authenticated = sessionStorage.getItem('authenticated');    
-      navigate('/Dashboard');
-      return props.setAuthenticated(true);
-    }    
-  }
-  catch(err)
-  {
+  // try{
+  //   const testToken = new dataFetch('/testing',null,'GET');
+  //   const response = testToken.makeRequest().data;
+  //   if(response.message != null)
+  //   {
+  //     const authenticated = sessionStorage.getItem('authenticated');    
+  //     navigate('/Dashboard');
+  //     return props.setAuthenticated(true);
+  //   }    
+  // }
+  // catch(err)
+  // {
 
-  }
+  // }
   
   const handleSignin =  async (e) =>
   {
@@ -201,8 +203,8 @@ export default function LoginPage(props) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email,
-          password
+          email: emailRef.current.value,
+          password: passwordRef.current.value
         })
 
       });
@@ -237,6 +239,9 @@ export default function LoginPage(props) {
     const payload = new dataFetch('/testing',null,'GET');
     const response = await payload.makeRequest();
     console.log(response.data)
+    // await dataFetch(null,null,'GET')
+    // .url('/testing')
+    // .makeRequest();
   };
   
   return (
@@ -262,8 +267,9 @@ export default function LoginPage(props) {
               required
               className="form-input"
               placeholder="Email address"
-              value = {email}
-              onChange={(e) => setEmail(e.target.value)}
+              ref={emailRef}
+              // value = {email}
+              // onChange={(e) => setEmail(e.target.value)}
 
             />
           </div>
@@ -277,8 +283,9 @@ export default function LoginPage(props) {
               required
               className="form-input"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              ref={passwordRef}
+              // value={password}
+              // onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 

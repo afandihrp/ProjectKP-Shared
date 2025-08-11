@@ -166,7 +166,7 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
 
 ### add module
 
-PATCH http://environment-relief.gl.at.ply.gg:24588/Course/modules/28
+PATCH http://environment-relief.gl.at.ply.gg:24588/Course/modules/30
 Content-Type: application/json
 Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
 
@@ -198,6 +198,7 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
                             "prompt": "Manakah yang bukan merupakan bahasa pemrograman tingkat tinggi?",
                             "options": ["Python", "Java", "Assembly", "C++"],
                             "correctAnswer": "Assembly"
+                            
                         },
                         {
                             "id": "task-essay-1",
@@ -237,6 +238,40 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
     ]
 }
 
+### add lesson module title
+
+patch http://environment-relief.gl.at.ply.gg:24588/Course/modules/41/add_module_title
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
+
+{
+    "moduleTitle": "slekberwr"
+}
+
+### delete lesson module
+
+patch http://environment-relief.gl.at.ply.gg:24588/Course/modules/37/delete_module_title
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
+
+
+{
+    "id":1
+}
+
+### add lesson
+patch http://environment-relief.gl.at.ply.gg:24588/Course/modules/41/add_lesson
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
+
+{
+    "id":1,
+    "content": [{
+        "Nasi": "Goreng"
+    }]
+}
+
+
 ### get course
 
 GET http://environment-relief.gl.at.ply.gg:24588/Course
@@ -259,7 +294,7 @@ Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsI
 
 ### delete course
 
-DELETE http://environment-relief.gl.at.ply.gg:24588/Course/4
+DELETE http://environment-relief.gl.at.ply.gg:24588/Course/40
 Content-Type: application/json
 Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcsImVtYWlsIjoidGVzdEB0ZXN0IiwicGFzc3dvcmQiOiIkYXJnb24yaWQkdj0xOSRtPTY1NTM2LHQ9MyxwPTQkZy9NaUZjSXJTa0tYVjNBbXFOb1ZNZyRPNVpSZXA1NTlVQjBEU0VESXprT0cwcjM5K2pkemtlaGdmOHdMdG5yeEtNIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUzNzg5MzM5fQ.P5apf5rWH6BZuuxCO6jQSCZXqYb-5zptSXgG_NPJDME
 

@@ -96,7 +96,7 @@ async function runWithTimeout(taskPromise, timeoutMs)
     
 
     getUserInfo().then((datauser) => {
-      if(!datauser) return logout();
+      // if(!datauser) return logout();
       console.log(datauser);
       setId(datauser[0].id);
       setName(datauser[0].name);

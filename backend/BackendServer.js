@@ -24,7 +24,7 @@ const upload = multer({ storage: storage });
 
 app.use(express.json());
 app.use(cors({
-  origin: 'http://thing-fountain.gl.at.ply.gg:49108', // The exact frontend URL
+  origin: ['http://thing-fountain.gl.at.ply.gg:49108','http://localhost:5173'], // The exact frontend URL
   credentials: true
 }));
 app.use(cookieParser());
@@ -32,17 +32,21 @@ app.use(cookieParser());
 const SECRET_KEY = '2e4c5d585ea22052d99d9b03205357be872ce2008b13d2f2c94da53ec1db3592'; //'procodecg' encrypted with sha256 
 const SECRET_REFRESH_KEY= '48fec683db5cdb61f859f94b123b390340ad4680b000ed96fa92c051cc140cfe'; // 'refreshprocodecg' encrypted with sha256 
 
-let refreshTokens = []
-let id = []
+let refreshTokens = [`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTcsImVtYWlsIjoiYWRtaW5AYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTQ1NTQzODd9.riJnLobCWwVVa-o4CH9G4nJM2AdtA0huybxmd8YpI4k`, `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTcsImVtYWlsIjoiYWRtaW5AYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTQ1NjM1ODV9.zVv9k7xhF8wTOVfMHJd4Bybn4HmiDGuPUVX1dn2G9Q0`]
 
 app.use((req, res, next) => {
-    console.log(`\n\n//========NEW REQUEST==============================================================//=>`);
+    console.log(`\n\n//========NEW REQUEST========//`);
     console.log(`URL: ${req.url}`);
-    console.log(`Active id: `);
+    console.log(`Method: ${req.method}`);
+    console.log(`Date: ${JSON.stringify(Date())}`);
     const cookies = req.headers.cookie&&req.headers.cookie.split(';');
-    console.log(`Cookies: ${JSON.stringify(cookies)}`);
-    console.log(`Body: ${JSON.stringify(req.body)}`);
-    console.log(`//=================================================================================//=>\n`);
+    console.log(`Cookies: ${cookies}`);
+    const body = req.body && req.body;
+    if(body != undefined)
+    {
+        console.log(`Body: ${JSON.stringify(body)}`);
+    }
+    console.log(`//===========================//\n`);
     next();
 });
 
@@ -125,6 +129,8 @@ function setCookie(res, cookieValue, cookieName, cookieAge)
         httpOnly: true,
         secure: false,
         path: '/',
+        // domain: '.gl.at.ply.gg',
+        // sameSite: 'strict'
     }
 
     if(cookieAge != null)
@@ -161,7 +167,7 @@ app.post('/login/auth', async (req,res) => {
         {
             return res.status(400).send('Invalid password');  
         } 
-        id.push(rows[0].id);
+        // id.push(rows[0].id);
         const user = {
             id: rows[0].id,
             email: rows[0].email,
@@ -226,14 +232,18 @@ app.get('/getEternalToken',(req,res) => {
 });
 
 
-
-//==============================================================//=>
-
+//============================================================================================//=>
 // anything below this comment requires authentication//
+//   _______    _              _____                  _              _ 
+//  |__   __|  | |            |  __ \                (_)            | |
+//     | | ___ | | _____ _ __ | |__) |___  __ _ _   _ _ _ __ ___  __| |
+//     | |/ _ \| |/ / _ \ '_ \|  _  // _ \/ _` | | | | | '__/ _ \/ _` |
+//     | | (_) |   <  __/ | | | | \ \  __/ (_| | |_| | | | |  __/ (_| |
+//     |_|\___/|_|\_\___|_| |_|_|  \_\___|\__, |\__,_|_|_|  \___|\__,_|
+//                                           | |                       
+//                                           |_|                       
 app.use(verifyToken);
-// anything below this comment requires authentication//
-
-//==============================================================//=>
+//============================================================================================//=>
 
 app.get('/testing',(req,res)=>{
     console.log('hellow');
@@ -241,26 +251,87 @@ app.get('/testing',(req,res)=>{
 
 })
 
-
-
 //==============================================================//=>
-//=> check if token expired and refresh it
+//=> get the user information coresponding to that id
 //==============================================================//=>
 
-// app.use((req,res,next)=>
-// {
-//     const token = req.cookies.refreshToken&&req.cookies.refreshToken || req.headers.authorization && req.headers.authorization.split(' ')[1];
-//     console.log(`refreshToken: ${token}`);
-//     if(token != undefined)
-//     {
-//         // console.log(`\n\nokeee\n\n`);
-//         return next();        
-//     }
-//     res.clearCookie('token');
-//     res.clearCookie('refreshToken');
-//     res.status(403).send('Forbidden, you are not logged in!');
-    
-// });
+app.post('/users', async (req,res) => {
+    const id = req.user.id;
+    try
+    {
+        const {rows} = await db.query('SELECT id,email,name,phonenumber,role FROM login_credentials where id = $1', [id]);
+        console.log(`User found: ${JSON.stringify(rows[0])}`);
+        res.status(200).send(rows);
+    }
+    catch(err)
+    {
+        console.error(err);
+        return res.status(500).send(`Error: ${err.message}`);
+    }    
+});
+
+//==============================================================//=>
+//=> execute python codes
+//==============================================================//=>
+
+
+app.post('/execPython', (req,res) => {
+  const {code} = req.body;
+  if(!code){
+    return res.status(400).send({status:'failed'})
+  }
+  console.log(code);
+  let scriptOutput = '';
+  let scriptError = '';
+
+  setTimeout(() => {
+    const pythonProcess = spawn('python3', ['-c', code]);
+
+    pythonProcess.on('error', (err) => {
+      console.error('Failed to start subprocess.', err);
+      res.status(500).json({
+          status: 'error', 
+          Output: '', 
+          Error: `Failed to start subprocess: ${err.message}`
+      });
+    });
+
+    // Listen for data on stdout
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data.toString()}`);
+        scriptOutput += data.toString();
+    });
+
+    // Listen for data on stderr
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+        scriptError += data.toString();
+    });
+
+    // Wait for the process to close before sending response
+    pythonProcess.on('close', (code) => {
+        console.log(`Python process exited with code ${code}`);
+        console.log('Captured output:', scriptOutput);
+        console.log('Captured error:', scriptError);
+        
+        // Send response after process is complete
+        res.status(200).json({
+            status: code === 0 ? 'success' : 'error',
+            Output: scriptOutput,
+            Error: scriptError
+        });
+    });
+
+    // Handle process exit
+    pythonProcess.on('exit', (code, signal) => {
+        if (signal) {
+            console.log(`Python process was killed by signal ${signal}`);
+        }
+    });
+
+  }, 1000);  
+
+});
 
 //==============================================================//=>
 //=> get front page data for that specific id
@@ -323,6 +394,17 @@ app.post('/frontpage/:parameter/:id',async (req,res) => {
     }
 })
 
+app.get('/Course',async (req,res)=>{
+    try{
+        const {rows} = await db.query('SELECT id, title, description, icon, color, available, modules FROM course');
+        res.status(200).send(rows);
+    }
+    catch(err){
+        res.status(500).send(`==Error==: ${err.message}`);
+    }
+
+})
+
 app.patch('/frontpage/:id',async (req,res) => {
     const id = req.params.id;
     const data = req.body;
@@ -357,7 +439,24 @@ app.patch('/frontpage/:id',async (req,res) => {
 })
 
 
-app.post('/Course',requireAdmin, async (req,res) =>{
+//============================================================================================//=>
+// anything below this comment requires admin Permissions
+//               _           _         _____                  _              _ 
+//      /\      | |         (_)       |  __ \                (_)            | |
+//     /  \   __| |_ __ ___  _ _ __   | |__) |___  __ _ _   _ _ _ __ ___  __| |
+//    / /\ \ / _` | '_ ` _ \| | '_ \  |  _  // _ \/ _` | | | | | '__/ _ \/ _` |
+//   / ____ \ (_| | | | | | | | | | | | | \ \  __/ (_| | |_| | | | |  __/ (_| |
+//  /_/    \_\__,_|_| |_| |_|_|_| |_| |_|  \_\___|\__, |\__,_|_|_|  \___|\__,_|
+//                                                   | |                       
+//                                                   |_|                       
+app.use(requireAdmin);
+//============================================================================================//=>
+
+
+
+
+
+app.post('/Course', async (req,res) =>{
     const {title, description, icon, color, available, modules} = req.body;
     console.log(req.body);
     // res.json(`title: ${title}\ndescription: ${description}\nicon: ${icon}\ncolor: ${color}\navailable: ${available}\n `);
@@ -381,18 +480,23 @@ app.post('/Course',requireAdmin, async (req,res) =>{
 
 })
 
-app.patch('/Course/:id',requireAdmin, async (req,res)=>{
+app.patch('/Course/:id', async (req,res)=>{
     const id = req.params.id && req.params.id;
     // if(!id) return res.status(400).send('bad request, id is missing');
-    const {title, description, icon, color, available} = req.body;
+    const {title, description, icon, color, available, modules=[]} = req.body;
     console.log(req.body);
-    if(!title || !description || !icon || !color || !available) return res.status(400).send('bad request');
+    // Validasi harus memeriksa keberadaan properti, bukan truthiness-nya.
+    // 'available: false' adalah input yang valid.
+    if (title === undefined || description === undefined || icon === undefined || color === undefined || available === undefined) {
+        return res.status(400).send('Bad request: Missing one or more required fields (title, description, icon, color, available).');
+    }
+
     try
     {
         const query = ` UPDATE course
-                        SET title = $1, description = $2, icon = $3, color = $4, available = $5
-                        WHERE id = $6;`;
-        const values = [title, description, icon, color, available, id];
+                        SET title = $1, description = $2, icon = $3, color = $4, available = $5, modules = $6
+                        WHERE id = $7;`;
+        const values = [title, description, icon, color, available, JSON.stringify(modules), id];
         const result = await db.query(query, values);
         // console.log(result);
         const {rows, rowCount} = result;
@@ -411,7 +515,7 @@ app.patch('/Course/:id',requireAdmin, async (req,res)=>{
 
 });
 
-app.patch('/Course/modules/:id',requireAdmin, async (req,res) =>{
+app.patch('/Course/modules/:id', async (req,res) =>{
     const id = req.params.id;
     const {modules} = req.body;
     console.log(req.body);
@@ -436,15 +540,142 @@ app.patch('/Course/modules/:id',requireAdmin, async (req,res) =>{
     }
 })
 
-app.get('/Course',async (req,res)=>{
+app.patch('/Course/modules/:id/:operation', async (req,res) =>{
+
+    const id = req.params.id;
+    const operation = req.params.operation;
+    const operations = [
+        'add_module_title',
+        'delete_module_title',
+        'add_lesson',
+        'test'
+    ];
+    if(!operations.includes(operation)) return res.status(400).send('bad request');
+
+    // switch 
+
+    // let template1 = [
+    //     {
+    //         id: 0,
+    //         moduleTitle: "Hi!",
+    //         lessons: []
+    //     },
+    // ]
+    // const lesson = [];
+    // template1[0].moduleTitle = req.body.moduleTitle;
+    // console.log(template[0].moduleTitle);
+
+    // SELECT jsonb_build_object(
+    //   'id', 0,
+    //   'moduleTitle', 'Hi!',
+    //   'lessons', '[]'::jsonb
+    // );
+
+    // SELECT
+    //   COALESCE(MAX((element ->> 'id')::integer), 0) + 1 AS next_module_id
+    // FROM
+    //   courses,
+    //   jsonb_array_elements(modules) AS element;
+
     try{
-        const {rows} = await db.query('SELECT id, title, description, icon, color, available, modules FROM course');
-        res.status(200).send(rows);
+        let query = '';
+        let values = [];
+        
+        switch (operation){
+            case `add_module_title`:
+                // template1[0].moduleTitle = req.body.moduleTitle;
+                // query =  `UPDATE course
+                //         SET modules = modules || $1::jsonb
+                //         WHERE id = $2;`;
+                query =`WITH new_module_data AS (
+                        
+                        SELECT
+                            COALESCE(MAX((elem ->> 'id')::integer), 0) + 1 AS next_id
+                        FROM
+                            course,
+                            LATERAL jsonb_array_elements(modules) AS elem
+                        WHERE
+                            id = $2 
+                        )
+                        UPDATE course
+                        SET
+                        
+                        modules = modules || jsonb_build_object(
+                            'id', (SELECT next_id FROM new_module_data),
+                            'moduleTitle', $1::text,
+                            'lessons', '[]'::jsonb
+                        )
+                        WHERE id = $2
+                        RETURNING modules;`;
+                values = [req.body.moduleTitle,id];
+
+            break;
+
+            case 'delete_module_title':
+                const module_id = req.body.id;
+                if(module_id === undefined) return res.status(400).send('bad request: module id missing');
+                query=`UPDATE course
+                        SET modules = COALESCE(
+                            (
+                                SELECT jsonb_agg(element)
+                                FROM jsonb_array_elements(modules) AS element
+                                WHERE (element ->> 'id')::integer <> $1::integer
+                            ),
+                            '[]'::jsonb
+                        )
+                        WHERE id = $2
+                        RETURNING modules;`;
+                values = [module_id, id]
+            break;
+
+            case `add_lesson`:
+                const lesson = req.body.content || [];
+                const module_id1 = req.body.id&&req.body.id;
+                if(!module_id1) return res.status(400).send('bad request: module id missing');
+
+                query =`UPDATE course
+                        SET modules = (
+                        
+                            SELECT
+                                jsonb_agg(
+                                CASE
+                                    WHEN (element ->> 'id')::integer = $1 THEN
+                                    
+                                    jsonb_set(element, '{lessons, -1}', $2::jsonb, true)
+                                    ELSE
+                                    element
+                                END
+                                )
+                            FROM
+                                jsonb_array_elements(modules) AS element -- This FROM belongs to the subquery
+                        )
+                        WHERE
+                        id = $3; -- This WHERE filters which course row to update`;
+                values = [module_id1,JSON.stringify(lesson),id];
+
+            break;
+            case `test`:
+                query =`SELECT
+                        MAX((element ->> 'id')::integer) + 1 AS next_module_id
+                        FROM
+                        course,jsonb_array_elements(modules) AS element;`;
+                values = [];
+            break
+        }
+        const result = await db.query(query, values);
+        const {rows,rowCount} = result;
+        if(rowCount>0){
+            // Kirim kembali objek modul yang sudah diperbarui
+            res.status(200).json(rows[0]);
+        }
+        else{
+            res.status(404).send('fail');
+        }
+        
     }
     catch(err){
         res.status(500).send(`==Error==: ${err.message}`);
     }
-
 })
 
 app.delete('/Course/:id',async (req,res)=>{
@@ -475,7 +706,7 @@ app.delete('/Course/:id',async (req,res)=>{
 
 
 
-app.post('/submit',requireAdmin, async (req,res) => {
+app.post('/submit', async (req,res) => {
     const {email, password, name, phonenumber,role} = req.body;
     console.log(req.body);
     if(!email || !password) return res.status(400).send({status:'please insert correct credentials'});
@@ -529,7 +760,7 @@ app.post('/submit',requireAdmin, async (req,res) => {
     }
 })
 
-app.delete(`/submit/:id`,requireAdmin, async (req,res) => {
+app.delete(`/submit/:id`, async (req,res) => {
     const id = req.params.id;
     try{
         const query = `delete from login_credentials where id = $1`;
@@ -553,7 +784,7 @@ app.delete(`/submit/:id`,requireAdmin, async (req,res) => {
     }
 })
 
-app.patch(`/submit/:id`,requireAdmin, async (req,res) => {
+app.patch(`/submit/:id`, async (req,res) => {
     const id = req.params.id;
     const {email, name, phonenumber,role} = req.body;
     try{
@@ -578,7 +809,7 @@ app.patch(`/submit/:id`,requireAdmin, async (req,res) => {
     }
 });
 
-app.get('/get/userData',requireAdmin, async (req,res) => {
+app.get('/get/userData', async (req,res) => {
     try
     {
         const {rows} = await db.query('SELECT * FROM login_credentials');
@@ -605,82 +836,7 @@ app.post('/post/submitUserData', async (req,res) => {
 })
 
 
-app.post('/users', async (req,res) => {
-    const id = req.user.id;
-    try
-    {
-        const {rows} = await db.query('SELECT id,email,name,phonenumber,role FROM login_credentials where id = $1', [id]);
-        console.log(`User found: ${JSON.stringify(rows[0])}`);
-        res.status(200).send(rows);
-    }
-    catch(err)
-    {
-        console.error(err);
-        return res.status(500).send(`Error: ${err.message}`);
-    }    
-});
 
-app.get('/test', async (req,res) => {
-    res.status(200).send({message: "hi!"});
-});
-
-app.post('/execPython', (req,res) => {
-  const {code} = req.body;
-  if(!code){
-    return res.status(400).send({status:'failed'})
-  }
-  console.log(code);
-  let scriptOutput = '';
-  let scriptError = '';
-
-  setTimeout(() => {
-    const pythonProcess = spawn('python3', ['-c', code]);
-
-    pythonProcess.on('error', (err) => {
-      console.error('Failed to start subprocess.', err);
-      res.status(500).json({
-          status: 'error', 
-          Output: '', 
-          Error: `Failed to start subprocess: ${err.message}`
-      });
-    });
-
-    // Listen for data on stdout
-    pythonProcess.stdout.on('data', (data) => {
-        console.log(`stdout: ${data.toString()}`);
-        scriptOutput += data.toString();
-    });
-
-    // Listen for data on stderr
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
-        scriptError += data.toString();
-    });
-
-    // Wait for the process to close before sending response
-    pythonProcess.on('close', (code) => {
-        console.log(`Python process exited with code ${code}`);
-        console.log('Captured output:', scriptOutput);
-        console.log('Captured error:', scriptError);
-        
-        // Send response after process is complete
-        res.status(200).json({
-            status: code === 0 ? 'success' : 'error',
-            Output: scriptOutput,
-            Error: scriptError
-        });
-    });
-
-    // Handle process exit
-    pythonProcess.on('exit', (code, signal) => {
-        if (signal) {
-            console.log(`Python process was killed by signal ${signal}`);
-        }
-    });
-
-  }, 1000);  
-
-});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

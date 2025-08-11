@@ -14,6 +14,7 @@ export default function CourseListItem({ course, marginleft, onBackToCourseList 
 
   // State untuk menangani tugas interaktif
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [taskAnimationDirection, setTaskAnimationDirection] = useState('next'); // 'next' or 'previous'
   const [taskAnswers, setTaskAnswers] = useState({});
   const [checkedAnswers, setCheckedAnswers] = useState({}); // { taskId: { status: 'correct' | 'incorrect', selected: 'userAnswer' } }
 
@@ -162,7 +163,7 @@ export default function CourseListItem({ course, marginleft, onBackToCourseList 
           )}
 
           {currentView === 'lesson' && activeLesson && (
-            <div className="lesson-page-view">
+            <div className="lesson-page-view lesson-view-enter">
               <div className="lesson-header">
                 <button onClick={handleBackToList} className="back-button">← Kembali ke Daftar Modul</button>
                 <h2>{activeLesson.title}</h2>
@@ -176,7 +177,12 @@ export default function CourseListItem({ course, marginleft, onBackToCourseList 
                   if (!task) return null;
 
                   return (
-                    <div className="interactive-tasks-container">
+                    <div
+                      key={currentTaskIndex}
+                      className={`interactive-tasks-container ${
+                        taskAnimationDirection === 'next' ? 'task-view-enter-next' : 'task-view-enter-prev'
+                      }`}
+                    >
                       <div className="tasks-header">
                         <h4>Latihan & Uji Pemahaman</h4>
                         <span>Tugas {currentTaskIndex + 1} dari {activeLesson.tasks.length}</span>
@@ -255,13 +261,19 @@ export default function CourseListItem({ course, marginleft, onBackToCourseList 
 
                       <div className="tasks-navigation">
                         <button 
-                          onClick={() => setCurrentTaskIndex(i => i - 1)} 
+                          onClick={() => {
+                            setTaskAnimationDirection('previous');
+                            setCurrentTaskIndex(i => i - 1);
+                          }} 
                           disabled={currentTaskIndex === 0}
                         >
                           <FaChevronLeft /> Sebelumnya
                         </button>
                         <button 
-                          onClick={() => setCurrentTaskIndex(i => i + 1)} 
+                          onClick={() => {
+                            setTaskAnimationDirection('next');
+                            setCurrentTaskIndex(i => i + 1);
+                          }} 
                           disabled={currentTaskIndex === activeLesson.tasks.length - 1 || !isTaskComplete(task)}
                         >
                           Berikutnya <FaChevronRight />

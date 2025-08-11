@@ -1,26 +1,27 @@
 import React, { useState, useContext, useEffect } from 'react';
 import './MyCoursesPage.css';
 import './AdminCoursesPage.css'; // Style untuk modal dan tombol admin
-import { FaArrowRight, FaCode, FaLaptopCode, FaAws, FaPlus, FaPencilAlt, FaTrash } from 'react-icons/fa';
+import {
+    FaArrowRight, FaCode, FaLaptopCode, FaAws, FaPlus, FaPencilAlt, FaTrash,
+    FaBook, FaBrain, FaRocket, FaCloud, FaDatabase
+} from 'react-icons/fa';
 import CourseListItem from './CourseListItem.jsx';
 import CourseEditor from './CourseEditor.jsx';
 import { hasPermission } from '../role.js';
 import coursesData from './course.json'; // Atau path relatif yang benar
 import dataFetch from '../handleFetching.js';
-import Icons from './Icons.jsx'
+import Icons, { iconMap } from './Icons.jsx'
 
-// Peta untuk mengubah string ikon dari JSON menjadi komponen React
-const iconMap = {
-    FaCode,
-    FaLaptopCode,
-    FaAws,
-};
+// Daftar ikon dan warna yang tersedia untuk kursus
+// const availableIcons = {
+//     FaCode, FaLaptopCode, FaAws, FaBook, FaBrain, FaRocket, FaCloud, FaDatabase
+// };
 
-// Memproses data awal untuk mengganti string ikon dengan komponen
-const initialCourses = coursesData.map(course => ({
-    ...course,
-    icon: iconMap[course.icon] || FaCode // Gunakan FaCode sebagai fallback
-}));
+const availableIcons = iconMap;
+
+const availableColors = [
+    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1'
+];
 
 // Komponen Modal untuk menambah kursus, dipindahkan dari AdminCoursesPage
 const AddCourseModal = ({ isOpen, onClose, onAddCourse }) => {
@@ -80,15 +81,24 @@ const AddCourseModal = ({ isOpen, onClose, onAddCourse }) => {
 const EditCourseDetailsModal = ({ isOpen, onClose, onSave, course }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [selectedIcon, setSelectedIcon] = useState('');
+    const [selectedColor, setSelectedColor] = useState('');
+    const [isAvailable, setIsAvailable] = useState(false);
 
     useEffect(() => {
         if (course) {
             setTitle(course.title);
             setDescription(course.description);
+            setSelectedIcon(course.icon);
+            setSelectedColor(course.color);
+            setIsAvailable(course.available);
         } else {
             // Reset form jika tidak ada kursus (misal, saat modal ditutup)
             setTitle('');
             setDescription('');
+            setSelectedIcon('');
+            setSelectedColor('');
+            setIsAvailable(false);
         }
     }, [course]);
 
@@ -101,7 +111,7 @@ const EditCourseDetailsModal = ({ isOpen, onClose, onSave, course }) => {
             return;
         }
         // Kirim kembali seluruh objek kursus yang diperbarui
-        onSave({ ...course, title, description });
+        onSave({ ...course, title, description, icon: selectedIcon, color: selectedColor, available: isAvailable });
         onClose();
     };
 
@@ -117,6 +127,56 @@ const EditCourseDetailsModal = ({ isOpen, onClose, onSave, course }) => {
                     <div className="form-group">
                         <label htmlFor="edit-description">Deskripsi Kursus</label>
                         <textarea id="edit-description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Pilih Ikon</label>
+                        <div className="icon-selector">
+                            {Object.keys(availableIcons).map(iconName => {
+                                const IconComponent = availableIcons[iconName];
+                                return (
+                                    <button
+                                        type="button"
+                                        key={iconName}
+                                        className={`icon-option ${selectedIcon === iconName ? 'selected' : ''}`}
+                                        onClick={() => setSelectedIcon(iconName)}
+                                        title={iconName}
+                                    >
+                                        <IconComponent />
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Pilih Warna</label>
+                        <div className="color-selector">
+                            {availableColors.map(color => (
+                                <div
+                                    key={color}
+                                    className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => setSelectedColor(color)}
+                                    role="button"
+                                    aria-label={`Pilih warna ${color}`}
+                                    tabIndex={0}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="form-group availability-toggle-group">
+                        <label>Ketersediaan Kursus</label>
+                        <div className="availability-toggle">
+                            <label className="switch">
+                                <input 
+                                    type="checkbox" 
+                                    checked={isAvailable} 
+                                    onChange={() => setIsAvailable(prev => !prev)} 
+                                />
+                                <span className="slider round"></span>
+                            </label>
+                            <span>{isAvailable ? 'Tersedia untuk Siswa' : 'Disimpan sebagai Draf'}</span>
+                        </div>
                     </div>
                     <div className="modal-actions">
                         <button type="button" onClick={onClose} className="btn-cancel">Batal</button>
@@ -137,7 +197,7 @@ const EditCourseDetailsModal = ({ isOpen, onClose, onSave, course }) => {
 
 export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai default {} untuk user
     const [selectedCourseId, setSelectedCourseId] = useState(null);
-    const [courses, setCourses] = useState(initialCourses);
+    const [courses, setCourses] = useState([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editDetailsModalState, setEditDetailsModalState] = useState({ isOpen: false, course: null });
     const [editingCourse, setEditingCourse] = useState(null);
@@ -150,27 +210,23 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         // Di aplikasi nyata, Anda bisa menggunakan fetch di sini.
         // Karena kita mengimpornya langsung, kita bisa set datanya.
         Promise.resolve().then(async () => {
-            const test = new dataFetch("/course", null, "GET");
-            const data = await test.makeRequest()
-            // console.log(coursesData);
-            const newdata = data.data
-            // .map((course)=>{
-            //     return{
-            //         ...course,
-            //         modules:[]
-            //     }
-                
-            // });
-            console.log(newdata); 
-            
-            
-            const processedCourses = newdata.map(course => ({
-                ...course,
-                icon: iconMap[course.icon] || FaCode
-            }));
-            setCourses(processedCourses);
+            const getCoursesRequest = new dataFetch("/course", null, "GET");
+            const response = await getCoursesRequest.makeRequest();
+
+            // Periksa apakah ada error atau data bukan array
+            if (response.err || !Array.isArray(response.data)) {
+                console.error("Gagal mengambil data kursus atau format data salah:", response.data);
+                setCourses([]); // Atur ke array kosong untuk menghindari error render
+                setIsLoading(false);
+                return; // Hentikan eksekusi lebih lanjut
+            }
+
+            const coursesFromApi = response.data;
+            console.log("Kursus yang diterima dari API:", coursesFromApi);
+
+            setCourses(coursesFromApi);
             setIsLoading(false);
-        })
+        });
 
     }, []);
 
@@ -197,6 +253,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
     };
     
     const handleAddCourse = async (newCourseData) => {
+
         const newCourse = {
             id: newCourseData.title.toLowerCase().replace(/\s+/g, '-').slice(0, 50),
             title: newCourseData.title,
@@ -208,7 +265,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         };
         setCourses(prevCourses => [...prevCourses, newCourse]);
 
-        const addCourse = new dataFetch("/Course", newCourse, "POST");
+        const addCourse = new dataFetch("/course", newCourse, "POST");
         await addCourse.makeRequest().then((response)=>{
             console.log(JSON.stringify(response.data));
         });
@@ -217,21 +274,22 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         
     };
 
-    const handleSaveCourseDetails = async (updatedCourse) => {
-        // API call untuk memperbarui judul dan deskripsi
-        const test = {
-    "title": "Nasigoreng",
-    "description": "sss",
-    "icon": "FaCode",
-    "color": "#3b82f6",
-    "available": true
-}
-        const updateCourse = new dataFetch(`/course/${30}`, test, "PATCH"); 
-        
+    const handleSaveCourseDetails = async (updatedCourseData) => {
+        // Backend saat ini mengharapkan objek kursus lengkap, bukan hanya
+        // field yang diubah. Kita sesuaikan payload di frontend.
+        const payload = {
+            title: updatedCourseData.title,
+            description: updatedCourseData.description,
+            icon: updatedCourseData.icon,
+            color: updatedCourseData.color,
+            available: updatedCourseData.available,
+        };
+
+        // Endpoint di backend bersifat case-sensitive (/Course, bukan /course)
+        const updateRequest = new dataFetch(`/course/${updatedCourseData.id}`, payload, "PATCH");
         try {
-            const response = await updateCourse.makeRequest();
-            console.log('Detail kursus berhasil diperbarui:', response.data);
-            setCourses(prevCourses => prevCourses.map(c => (c.id === updatedCourse.id ? updatedCourse : c)));
+            await updateRequest.makeRequest();
+            setCourses(prevCourses => prevCourses.map(c => (c.id === updatedCourseData.id ? updatedCourseData : c)));
             setEditDetailsModalState({ isOpen: false, course: null });
         } catch (error) {
             console.error('Gagal memperbarui detail kursus:', error);
@@ -239,9 +297,14 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         }
     };
 
-    const handleUpdateCourse = (updatedCourse) => {
+    const handleUpdateCourse = async (updatedCourse) => {
         setCourses(prevCourses => prevCourses.map(c => (c.id === updatedCourse.id ? updatedCourse : c)));
         setEditingCourse(updatedCourse); // Menjaga state editor tetap sinkron
+        const updateRequest = new dataFetch(`/course/${updatedCourse.id}`, updatedCourse, "PATCH");
+        await updateRequest.makeRequest();
+        console.log(`updatedCourse====\n ${JSON.stringify(updatedCourse)}`);
+        
+
     };
 
     const handleDeleteCourse = (courseId) => {
@@ -252,11 +315,13 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         }
         if (window.confirm('Apakah Anda yakin ingin menghapus kursus ini?')) {
             setCourses(prevCourses => prevCourses.filter(course => course.id !== courseId));
+            // Perbaiki endpoint agar case-sensitive sesuai backend (/Course)
             const deleteCourse = new dataFetch(`/course/${courseId}`, null, "DELETE");
             deleteCourse.makeRequest().then((response)=>{
                 console.log(JSON.stringify(response));
             })
 
+            
         }
     };
 
@@ -270,12 +335,16 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
     };
 
     if (editingCourse) {
-        return <CourseEditor
-            course={editingCourse}
-            onBack={handleBackFromEditor}
-            onUpdateCourse={handleUpdateCourse}
-            marginleft={marginleft}
-        />;
+        return (
+            <div className="page-transition-enter">
+                <CourseEditor
+                    course={editingCourse}
+                    onBack={handleBackFromEditor}
+                    onUpdateCourse={handleUpdateCourse}
+                    marginleft={marginleft}
+                />
+            </div>
+        );
     }
     
     if (selectedCourseId) {
@@ -292,7 +361,11 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
         }
 
         // Mengirim seluruh objek 'selectedCourse' sebagai prop 'course'
-        return <CourseListItem course={selectedCourse} marginleft={marginleft} onBackToCourseList={handleBackToCourseList} />;
+        return (
+            <div className="page-transition-enter">
+                <CourseListItem course={selectedCourse} marginleft={marginleft} onBackToCourseList={handleBackToCourseList} />
+            </div>
+        );
     }
 
     if (isLoading) {
@@ -312,23 +385,6 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
                 onSave={handleSaveCourseDetails}
                 course={editDetailsModalState.course}
             />
-            <style>{`
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-
-                .course-card-item {
-                    opacity: 0; /* Mulai dari transparan */
-                    animation: fadeInUp 0.6s ease-out forwards;
-                }
-            `}</style>
             <div className="my-courses-page" style={{ marginLeft: `${marginleft}px` }}>
                 <header className={`my-courses-header ${isAdminView ? 'admin-header' : ''}`}>
                     {isAdminView ? ( // Tampilan untuk Admin
@@ -356,7 +412,7 @@ export default function MyCoursesPage({ marginleft, user = {} }) { // Beri nilai
                             onClick={() => handleCardClick(course)}
                             style={{ animationDelay: `${index * 0.1}s` }} // Menambahkan delay agar muncul satu per satu
                         >
-                            <div className="course-card-icon" style={{ backgroundColor: course.color }}><Icons icon={'FaCode'} /></div>
+                            <div className="course-card-icon" style={{ backgroundColor: course.color }}><Icons icon={course.icon} /></div>
                             <div className="course-card-content">
                                 <h3>{course.title}</h3>
                                 <p>{course.description}</p>
